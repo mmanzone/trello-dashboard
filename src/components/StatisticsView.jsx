@@ -455,17 +455,20 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                }
             });
             
-            const payloadCards = Array.from(uniqueCardsMap.values()).map(c => ({
-                id: c.id,
-                name: c.name,
-                desc: c.desc ? c.desc.substring(0, 100) + '...' : '',
-                labels: c.labels ? c.labels.map(l => l.name || l.color) : [],
-                comments: c.badges?.comments || 0,
-                membersCount: c.idMembers ? c.idMembers.length : 0,
-                coords: c.coordinates ? { lat: c.coordinates.lat, lng: c.coordinates.lng } : null,
-                created: c.isCreatedInPeriod,
-                completed: c.isCompletedInPeriod
-            }));
+            const payloadCards = Array.from(uniqueCardsMap.values()).map(c => {
+                const optimizedCard = { name: c.name };
+                if (c.desc) optimizedCard.desc = c.desc.replace(/[\r\n]+/g, ' ').substring(0, 60).trim() + '...';
+                if (c.labels && c.labels.length > 0) optimizedCard.labels = c.labels.map(l => l.name || l.color);
+                if (c.badges?.comments > 0) optimizedCard.comments = c.badges.comments;
+                if (c.idMembers?.length > 0) optimizedCard.membersCount = c.idMembers.length;
+                if (c.coordinates) optimizedCard.coords = { 
+                    lat: Math.round(c.coordinates.lat * 1000) / 1000, 
+                    lng: Math.round(c.coordinates.lng * 1000) / 1000 
+                };
+                if (c.isCreatedInPeriod) optimizedCard.created = true;
+                if (c.isCompletedInPeriod) optimizedCard.completed = true;
+                return optimizedCard;
+            });
 
             const response = await fetch('/api/summarize', {
                 method: 'POST',
@@ -484,7 +487,13 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                     const errorData = await response.json();
                     errorMsg = errorData.error || errorMsg;
                 } catch(e) {}
-                setSummaryText(`**Error generating summary:** ${errorMsg}`);
+                
+                if (response.status === 503 || response.status === 504 || errorMsg.toLowerCase().includes('high demand') || errorMsg.toLowerCase().includes('unavailable')) {
+                    setSummaryText(`*The AI model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again in a few moments.*`);
+                } else {
+                    setSummaryText(`**Error generating summary:** ${errorMsg}`);
+                }
+                
                 setIsGeneratingSummary(false);
                 return;
             }
@@ -642,7 +651,7 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: summaryText ? '15px' : '0' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent)' }}>
                                     <Sparkles size={20} />
-                                    <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>AI Period Summary</h3>
+                                    <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>AI Summary for the period</h3>
                                 </div>
                                 <button 
                                     className="button-primary" 
