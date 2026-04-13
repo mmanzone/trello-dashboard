@@ -1,4 +1,4 @@
-import { generateText } from 'ai';
+import { streamText } from 'ai';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 
 export const config = {
@@ -54,17 +54,14 @@ Keep the response to exactly one comprehensive paragraph. It will be displayed a
     const userPrompt = `Here is the raw data (JSON) of the cards in this period:
 ${JSON.stringify(cardsData)}`;
 
-    const { text } = await generateText({
+    const result = await streamText({
       model: google('gemini-2.5-flash'),
       system: systemPrompt,
       prompt: userPrompt,
       temperature: 0.7,
     });
 
-    return new Response(JSON.stringify({ summary: text }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return result.toTextStreamResponse();
     
   } catch (error) {
     console.error("AI Summarization error:", error);

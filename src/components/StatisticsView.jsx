@@ -478,15 +478,34 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                 })
             });
 
-            const data = await response.json();
-            if (response.ok) {
-                setSummaryText(data.summary);
-            } else {
-                setSummaryText(`**Error generating summary:** ${data.error}`);
+            if (!response.ok) {
+                let errorMsg = "An error occurred";
+                try {
+                    const errorData = await response.json();
+                    errorMsg = errorData.error || errorMsg;
+                } catch(e) {}
+                setSummaryText(`**Error generating summary:** ${errorMsg}`);
+                setIsGeneratingSummary(false);
+                return;
             }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let summaryBuffer = "";
+            let done = false;
+
+            while (!done) {
+                const { value, done: readerDone } = await reader.read();
+                done = readerDone;
+                if (value) {
+                    summaryBuffer += decoder.decode(value, { stream: true });
+                    setSummaryText(summaryBuffer); 
+                }
+            }
+
+            setIsGeneratingSummary(false);
         } catch (e) {
             setSummaryText(`**Error generating summary:** ${e.message}`);
-        } finally {
             setIsGeneratingSummary(false);
         }
     };
