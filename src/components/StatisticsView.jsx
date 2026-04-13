@@ -3,15 +3,20 @@ import { trelloFetch } from '../api/trello';
 import { TIME_FILTERS } from '../utils/constants';
 import LabelFilter from './common/LabelFilter';
 import { useDarkMode } from '../context/DarkModeContext';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Sparkles, Loader2 } from 'lucide-react';
 import DigitalClock from './common/DigitalClock';
 import HamburgerMenu from './common/HamburgerMenu';
+import { marked } from 'marked';
 
 const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLogout }) => {
     const [cards, setCards] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const { theme, toggleTheme } = useDarkMode();
+    
+    // AI Summary State
+    const [summaryText, setSummaryText] = useState('');
+    const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
     // Filters
     const [createdFilter, setCreatedFilter] = useState('this_week');
@@ -50,7 +55,7 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                 setAllLabels(labelsData);
 
                 // 2. Fetch Cards
-                const cardsData = await trelloFetch(`/boards/${boardId}/cards?fields=id,name,labels,idList,due,dueComplete,dateLastActivity,desc,pos,coordinates&pluginData=true`, user.token);
+                const cardsData = await trelloFetch(`/boards/${boardId}/cards?fields=id,name,labels,idList,due,dueComplete,dateLastActivity,desc,pos,coordinates,badges,idMembers&pluginData=true`, user.token);
 
                 // Process coords (omitted for brevity as map logs are gone, but we keep structure)
                 const processedCards = cardsData.map(c => {
@@ -430,6 +435,61 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
         });
     };
 
+    const handleGenerateSummary = async () => {
+        setIsGeneratingSummary(true);
+        setSummaryText('');
+        try {
+            const range = getFilterRange(createdFilter);
+            const diffDays = range && range.end && range.start ? (range.end.getTime() - range.start.getTime()) / (1000 * 60 * 60 * 24) : 0;
+            
+            const validCreatedCards = cards.filter(matchesLabelFilter).filter(c => isDateInFilter(getCreationDate(c.id), createdFilter));
+            const validCompletedCards = cards.filter(matchesLabelFilter).filter(c => c.dueComplete && c.due && isDateInFilter(new Date(c.due), createdFilter));
+            
+            const uniqueCardsMap = new Map();
+            validCreatedCards.forEach(c => uniqueCardsMap.set(c.id, { ...c, isCreatedInPeriod: true }));
+            validCompletedCards.forEach(c => {
+               if (uniqueCardsMap.has(c.id)) {
+                   uniqueCardsMap.get(c.id).isCompletedInPeriod = true;
+               } else {
+                   uniqueCardsMap.set(c.id, { ...c, isCompletedInPeriod: true });
+               }
+            });
+            
+            const payloadCards = Array.from(uniqueCardsMap.values()).map(c => ({
+                id: c.id,
+                name: c.name,
+                desc: c.desc ? c.desc.substring(0, 100) + '...' : '',
+                labels: c.labels ? c.labels.map(l => l.name || l.color) : [],
+                comments: c.badges?.comments || 0,
+                membersCount: c.idMembers ? c.idMembers.length : 0,
+                coords: c.coordinates ? { lat: c.coordinates.lat, lng: c.coordinates.lng } : null,
+                created: c.isCreatedInPeriod,
+                completed: c.isCompletedInPeriod
+            }));
+
+            const response = await fetch('/api/summarize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    cardsData: payloadCards,
+                    periodLabel: filterLabelText,
+                    diffDays
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setSummaryText(data.summary);
+            } else {
+                setSummaryText(`**Error generating summary:** ${data.error}`);
+            }
+        } catch (e) {
+            setSummaryText(`**Error generating summary:** ${e.message}`);
+        } finally {
+            setIsGeneratingSummary(false);
+        }
+    };
+
     return (
         <div className="statistics-view" style={{ width: '100%', minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-primary)' }}>
             <div className="map-header">
@@ -556,6 +616,33 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                     </div>
                 ) : (
                     <div id="stats-export-area" className="dashboard-grid" style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '30px', padding: '0 20px' }}>
+
+                        {/* AI Summary Section */}
+                        <div className="form-card" style={{ width: '100%', display: 'flex', flexDirection: 'column', border: '1px solid var(--accent-light)', background: 'var(--bg-secondary)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: summaryText ? '15px' : '0' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent)' }}>
+                                    <Sparkles size={20} />
+                                    <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>AI Period Summary</h3>
+                                </div>
+                                <button 
+                                    className="button-primary" 
+                                    onClick={handleGenerateSummary} 
+                                    disabled={isGeneratingSummary}
+                                    style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', fontSize: '0.9em' }}
+                                >
+                                    {isGeneratingSummary ? <Loader2 size={16} className="spin" /> : <Sparkles size={16} />}
+                                    {isGeneratingSummary ? 'Generating...' : 'Generate Summary'}
+                                </button>
+                            </div>
+                            
+                            {summaryText && (
+                                <div 
+                                    className="markdown-content ai-summary-content" 
+                                    style={{ fontSize: '1.05em', lineHeight: '1.6', color: 'var(--text-primary)' }}
+                                    dangerouslySetInnerHTML={{ __html: marked(summaryText) }} 
+                                />
+                            )}
+                        </div>
 
                         <div className="form-card" id="card-line-chart" style={{ width: '100%', minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>

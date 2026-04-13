@@ -9,7 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ai-sdk/google": "^3.0.62",
     "@googlemaps/js-api-loader": "^2.0.2",
+    "ai": "^6.0.158",
     "lucide-react": "^0.562.0",
     "marked": "^17.0.1",
     "react": "^18.2.0",
