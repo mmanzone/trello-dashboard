@@ -1,5 +1,5 @@
 import { generateText } from 'ai';
-import { google } from '@ai-sdk/google';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 
 export const config = {
   runtime: 'edge',
@@ -22,6 +22,17 @@ export default async function handler(req) {
         headers: { 'Content-Type': 'application/json' },
       });
     }
+
+    // Try multiple standard env var names to improve reliability.
+    const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.VITE_GOOGLE_GENERATIVE_AI_API_KEY;
+
+    if (!apiKey) {
+      throw new Error("Google Generative AI API key is missing. Please add GOOGLE_GENERATIVE_AI_API_KEY to your environment variables and redeploy.");
+    }
+
+    const google = createGoogleGenerativeAI({
+      apiKey: apiKey,
+    });
 
     const systemPrompt = `You are an AI assistant built into a dashboard for Trello.
 Your task is to analyze a set of Trello cards created and completed over the period: "${periodLabel}".
