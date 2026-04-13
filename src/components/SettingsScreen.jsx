@@ -7,6 +7,7 @@ import ColorPicker from './common/ColorPicker';
 import { getPersistentLayout } from '../utils/persistence';
 import { STORAGE_KEYS, DEFAULT_LAYOUT } from '../utils/constants';
 import { setPersistentColors, getPersistentColors, setPersistentLayout } from '../utils/persistence';
+import { Sparkles, Loader2 } from 'lucide-react';
 import '../styles/settings.css';
 
 const ShareConfigModal = ({ config, onClose, boardName }) => {
@@ -149,6 +150,8 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
     const [enableStats, setEnableStats] = useState(false);
     const [statsShowArchived, setStatsShowArchived] = useState(true);
     const [statsIncludedLists, setStatsIncludedLists] = useState([]);
+    const [statsCustomPrompt, setStatsCustomPrompt] = useState('');
+    const [isImprovingPrompt, setIsImprovingPrompt] = useState(false);
 
     // Slideshow Settings
     const [slideshowInterval, setSlideshowInterval] = useState(10);
@@ -425,6 +428,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
             setEnableStats(!!statsSettings.enabled);
             setStatsShowArchived(statsSettings.includeArchived !== undefined ? statsSettings.includeArchived : true);
             setStatsIncludedLists(statsSettings.includedLists || []);
+            setStatsCustomPrompt(statsSettings.customAIPrompt || '');
 
             // Slideshow
             if (userSettings?.slideshowInterval) setSlideshowInterval(userSettings.slideshowInterval);
@@ -687,7 +691,8 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                 statistics: {
                     enabled: enableStats,
                     showArchived: statsShowArchived,
-                    includedLists: statsIncludedLists
+                    includedLists: statsIncludedLists,
+                    customAIPrompt: statsCustomPrompt
                 }
 
 
@@ -784,6 +789,28 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
         } catch (e) {
             console.error("Failed to save task settings", e);
             alert("Failed to save task settings");
+        }
+    };
+
+    const handleImprovePrompt = async () => {
+        if (!statsCustomPrompt.trim()) return;
+        setIsImprovingPrompt(true);
+        try {
+            const res = await fetch('/api/improvePrompt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rawPrompt: statsCustomPrompt })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setStatsCustomPrompt(data.improvedPrompt);
+            } else {
+                alert(`Error improving prompt: ${data.error}`);
+            }
+        } catch (e) {
+            alert(`Error improving prompt: ${e.message}`);
+        } finally {
+            setIsImprovingPrompt(false);
         }
     };
 
@@ -1636,6 +1663,29 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                                 onClick={() => setStatsIncludedLists([])}
                                             >
                                                 Select All (Clear Filter)
+                                            </button>
+                                        </div>
+
+                                        <div style={{ marginTop: '20px', padding: '15px', background: '#f0f4f8', borderRadius: '6px', border: '1px solid #cce' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                                                <Sparkles size={18} color="#0052cc" />
+                                                <label style={{ fontWeight: 'bold', margin: 0, color: '#0052cc' }}>Custom AI Prompt (Optional)</label>
+                                            </div>
+                                            <p style={{ fontSize: '0.9em', color: '#666', marginTop: '0', marginBottom: '10px' }}>Provide additional context or specific instructions to the AI when generating a summary for this board. This context will be added to the core system instructions.</p>
+                                            <textarea 
+                                                value={statsCustomPrompt} 
+                                                onChange={(e) => setStatsCustomPrompt(e.target.value)}
+                                                placeholder="E.g., Write the summary as a pirate..."
+                                                style={{ width: '100%', minHeight: '80px', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', resize: 'vertical' }}
+                                            />
+                                            <button 
+                                                className="button-secondary" 
+                                                onClick={handleImprovePrompt}
+                                                disabled={isImprovingPrompt || !statsCustomPrompt.trim()}
+                                                style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}
+                                            >
+                                                {isImprovingPrompt ? <Loader2 size={16} className="spin" /> : <Sparkles size={16} />}
+                                                {isImprovingPrompt ? 'Improving...' : 'Improve Prompt with AI'}
                                             </button>
                                         </div>
 

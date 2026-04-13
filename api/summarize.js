@@ -14,7 +14,7 @@ export default async function handler(req) {
   }
 
   try {
-    const { cardsData, periodLabel, diffDays } = await req.json();
+    const { cardsData, periodLabel, diffDays, customPromptContext } = await req.json();
 
     if (!cardsData || !Array.isArray(cardsData)) {
       return new Response(JSON.stringify({ error: 'cardsData is required and must be an array' }), {
@@ -34,7 +34,7 @@ export default async function handler(req) {
       apiKey: apiKey,
     });
 
-    const systemPrompt = `You are an AI assistant built into a dashboard for Trello.
+    let systemPrompt = `You are an AI assistant built into a dashboard for Trello.
 Your task is to analyze a set of Trello cards created and completed over the period: "${periodLabel}".
 Provide a concise, single-paragraph summary of these cards.
 
@@ -46,6 +46,10 @@ The summary MUST cover the following:
 5. If the analyzed period is longer than 1 month (${diffDays} days), include a quick week-over-week trend summary.
 
 Keep the response to exactly one comprehensive paragraph. It will be displayed at the top of a statistics page. Do not include greetings. Use Markdown formatting for emphasis.`;
+
+    if (customPromptContext) {
+      systemPrompt += `\n\nADDITIONAL INSTRUCTIONS SPECIFIED BY USER:\n${customPromptContext}`;
+    }
 
     const userPrompt = `Here is the raw data (JSON) of the cards in this period:
 ${JSON.stringify(cardsData)}`;

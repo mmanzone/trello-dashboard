@@ -473,7 +473,8 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                 body: JSON.stringify({
                     cardsData: payloadCards,
                     periodLabel: filterLabelText,
-                    diffDays
+                    diffDays,
+                    customPromptContext: settings?.statistics?.customAIPrompt || ''
                 })
             });
 
