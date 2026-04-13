@@ -51,7 +51,7 @@ Keep the response to exactly one comprehensive paragraph. It will be displayed a
 ${JSON.stringify(cardsData)}`;
 
     const { text } = await generateText({
-      model: google('gemini-1.5-flash'),
+      model: google('gemini-2.5-flash'),
       system: systemPrompt,
       prompt: userPrompt,
       temperature: 0.7,
