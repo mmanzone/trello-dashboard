@@ -438,84 +438,108 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
     const handleGenerateSummary = async () => {
         setIsGeneratingSummary(true);
         setSummaryText('');
-        try {
-            const range = getFilterRange(createdFilter);
-            const diffDays = range && range.end && range.start ? (range.end.getTime() - range.start.getTime()) / (1000 * 60 * 60 * 24) : 0;
-            
-            const validCreatedCards = cards.filter(matchesLabelFilter).filter(c => isDateInFilter(getCreationDate(c.id), createdFilter));
-            const validCompletedCards = cards.filter(matchesLabelFilter).filter(c => c.dueComplete && c.due && isDateInFilter(new Date(c.due), createdFilter));
-            
-            const uniqueCardsMap = new Map();
-            validCreatedCards.forEach(c => uniqueCardsMap.set(c.id, { ...c, isCreatedInPeriod: true }));
-            validCompletedCards.forEach(c => {
-               if (uniqueCardsMap.has(c.id)) {
-                   uniqueCardsMap.get(c.id).isCompletedInPeriod = true;
-               } else {
-                   uniqueCardsMap.set(c.id, { ...c, isCompletedInPeriod: true });
-               }
-            });
-            
-            const payloadCards = Array.from(uniqueCardsMap.values()).map(c => {
-                const optimizedCard = { name: c.name };
-                if (c.desc) optimizedCard.desc = c.desc.replace(/[\r\n]+/g, ' ').substring(0, 60).trim() + '...';
-                if (c.labels && c.labels.length > 0) optimizedCard.labels = c.labels.map(l => l.name || l.color);
-                if (c.badges?.comments > 0) optimizedCard.comments = c.badges.comments;
-                if (c.idMembers?.length > 0) optimizedCard.membersCount = c.idMembers.length;
-                if (c.coordinates) optimizedCard.coords = { 
-                    lat: Math.round(c.coordinates.lat * 1000) / 1000, 
-                    lng: Math.round(c.coordinates.lng * 1000) / 1000 
-                };
-                if (c.isCreatedInPeriod) optimizedCard.created = true;
-                if (c.isCompletedInPeriod) optimizedCard.completed = true;
-                return optimizedCard;
-            });
+        
+        let attempts = 0;
+        const maxAttempts = 3;
 
-            const response = await fetch('/api/summarize', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    cardsData: payloadCards,
-                    periodLabel: filterLabelText,
-                    diffDays,
-                    customPromptContext: settings?.statistics?.customAIPrompt || ''
-                })
-            });
-
-            if (!response.ok) {
-                let errorMsg = "An error occurred";
-                try {
-                    const errorData = await response.json();
-                    errorMsg = errorData.error || errorMsg;
-                } catch(e) {}
+        while (attempts < maxAttempts) {
+            attempts++;
+            try {
+                const range = getFilterRange(createdFilter);
+                const diffDays = range && range.end && range.start ? (range.end.getTime() - range.start.getTime()) / (1000 * 60 * 60 * 24) : 0;
                 
-                if (response.status === 503 || response.status === 504 || errorMsg.toLowerCase().includes('high demand') || errorMsg.toLowerCase().includes('unavailable')) {
-                    setSummaryText(`*The AI model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again in a few moments.*`);
-                } else {
-                    setSummaryText(`**Error generating summary:** ${errorMsg}`);
+                const validCreatedCards = cards.filter(matchesLabelFilter).filter(c => isDateInFilter(getCreationDate(c.id), createdFilter));
+                const validCompletedCards = cards.filter(matchesLabelFilter).filter(c => c.dueComplete && c.due && isDateInFilter(new Date(c.due), createdFilter));
+                
+                const uniqueCardsMap = new Map();
+                validCreatedCards.forEach(c => uniqueCardsMap.set(c.id, { ...c, isCreatedInPeriod: true }));
+                validCompletedCards.forEach(c => {
+                   if (uniqueCardsMap.has(c.id)) {
+                       uniqueCardsMap.get(c.id).isCompletedInPeriod = true;
+                   } else {
+                       uniqueCardsMap.set(c.id, { ...c, isCompletedInPeriod: true });
+                   }
+                });
+                
+                const payloadCards = Array.from(uniqueCardsMap.values()).map(c => {
+                    const optimizedCard = { name: c.name };
+                    if (c.desc) optimizedCard.desc = c.desc.replace(/[\r\n]+/g, ' ').substring(0, 60).trim() + '...';
+                    if (c.labels && c.labels.length > 0) optimizedCard.labels = c.labels.map(l => l.name || l.color);
+                    if (c.badges?.comments > 0) optimizedCard.comments = c.badges.comments;
+                    if (c.idMembers?.length > 0) optimizedCard.membersCount = c.idMembers.length;
+                    if (c.coordinates) optimizedCard.coords = { 
+                        lat: Math.round(c.coordinates.lat * 1000) / 1000, 
+                        lng: Math.round(c.coordinates.lng * 1000) / 1000 
+                    };
+                    if (c.isCreatedInPeriod) optimizedCard.created = true;
+                    if (c.isCompletedInPeriod) optimizedCard.completed = true;
+                    return optimizedCard;
+                });
+
+                const response = await fetch('/api/summarize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cardsData: payloadCards,
+                        periodLabel: filterLabelText,
+                        diffDays,
+                        customPromptContext: settings?.statistics?.customAIPrompt || ''
+                    })
+                });
+
+                if (!response.ok) {
+                    let errorMsg = "An error occurred";
+                    try {
+                        const errorData = await response.json();
+                        errorMsg = errorData.error || errorMsg;
+                    } catch(e) {}
+                    
+                    const msgStr = typeof errorMsg === 'string' ? errorMsg.toLowerCase() : JSON.stringify(errorMsg).toLowerCase();
+                    
+                    if (response.status === 503 || response.status === 504 || msgStr.includes('high demand') || msgStr.includes('unavailable')) {
+                        if (attempts < maxAttempts) {
+                            setSummaryText(`*The AI model is experiencing high demand. Retrying... (Attempt ${attempts + 1}/${maxAttempts})*`);
+                            await new Promise(r => setTimeout(r, 2500)); // wait 2.5s before retry
+                            continue; // Retry loop
+                        } else {
+                            setSummaryText(`*The AI model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again in a few moments.*`);
+                            setIsGeneratingSummary(false);
+                            return;
+                        }
+                    } else {
+                        setSummaryText(`**Error generating summary:** ${typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg)}`);
+                        setIsGeneratingSummary(false);
+                        return;
+                    }
                 }
-                
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let summaryBuffer = "";
+                let done = false;
+
+                while (!done) {
+                    const { value, done: readerDone } = await reader.read();
+                    done = readerDone;
+                    if (value) {
+                        summaryBuffer += decoder.decode(value, { stream: true });
+                        setSummaryText(summaryBuffer); 
+                    }
+                }
+
+                setIsGeneratingSummary(false);
+                return; // Break successful generation
+            } catch (e) {
+                // If network fetch fails completely
+                if (attempts < maxAttempts) {
+                    setSummaryText(`*Network issue detected. Retrying... (Attempt ${attempts + 1}/${maxAttempts})*`);
+                    await new Promise(r => setTimeout(r, 2000));
+                    continue;
+                }
+                setSummaryText(`**Error generating summary:** ${e.message}`);
                 setIsGeneratingSummary(false);
                 return;
             }
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder("utf-8");
-            let summaryBuffer = "";
-            let done = false;
-
-            while (!done) {
-                const { value, done: readerDone } = await reader.read();
-                done = readerDone;
-                if (value) {
-                    summaryBuffer += decoder.decode(value, { stream: true });
-                    setSummaryText(summaryBuffer); 
-                }
-            }
-
-            setIsGeneratingSummary(false);
-        } catch (e) {
-            setSummaryText(`**Error generating summary:** ${e.message}`);
-            setIsGeneratingSummary(false);
         }
     };
 

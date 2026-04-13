@@ -59,14 +59,25 @@ ${JSON.stringify(cardsData)}`;
       system: systemPrompt,
       prompt: userPrompt,
       temperature: 0.7,
+      maxRetries: 0,
     });
 
     return result.toTextStreamResponse();
     
   } catch (error) {
     console.error("AI Summarization error:", error);
-    return new Response(JSON.stringify({ error: error.message || 'Internal Server Error' }), {
-      status: 500,
+    
+    // Extract a more specific error message from the Vercel AI SDK wrappers
+    let errorMessage = error.message || 'Internal Server Error';
+    if (error.name === 'AI_RetryError' || error.name === 'AI_APICallError') {
+      errorMessage = error.lastError?.message || error.cause?.message || errorMessage;
+    }
+    
+    // Check if the inner error is a 503 or 504 to forward appropriate status codes
+    const statusCode = error.statusCode || error.lastError?.statusCode || 500;
+
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status: statusCode,
       headers: { 'Content-Type': 'application/json' },
     });
   }
