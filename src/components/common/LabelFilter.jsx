@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDarkMode } from '../../context/DarkModeContext';
 
-const LabelFilter = ({ labels, selectedLabelIds, onChange, labelLogic, onLabelLogicChange }) => {
+const LabelFilter = ({ title, labels, selectedLabelIds, onChange, labelLogic, onLabelLogicChange }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const { theme } = useDarkMode();
@@ -50,7 +50,7 @@ const LabelFilter = ({ labels, selectedLabelIds, onChange, labelLogic, onLabelLo
                     border: '1px solid var(--border-color)'
                 }}
             >
-                Labels
+                {title || 'Labels'}
                 {!isAll && selectedLabelIds.size > 0 && (
                     <span style={{
                         background: 'var(--accent-color)',
@@ -94,7 +94,7 @@ const LabelFilter = ({ labels, selectedLabelIds, onChange, labelLogic, onLabelLo
                         fontWeight: 'bold',
                         color: 'var(--text-primary)'
                     }}>
-                        <span>Filter by Labels</span>
+                        <span>Filter by {title || 'Labels'}</span>
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <button
                                 onClick={() => onChange(null)} // Select All

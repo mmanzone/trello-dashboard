@@ -69,6 +69,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
     // Naming config
     const terms = getTerminology(settings);
     const BoardTerm = terms.board;
+    const labelTermName = terms.labels ? terms.labels.charAt(0).toUpperCase() + terms.labels.slice(1) : 'Labels';
 
     const sectionsLayout = boardId ? getPersistentLayout(user.id, boardId) : DEFAULT_LAYOUT;
     const persistentColors = getPersistentColors(user.id);
@@ -363,6 +364,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                             <>
                                 {/* Label Filter - Moved BEFORE Time Filter */}
                                 <LabelFilter
+                                    title={labelTermName}
                                     labels={boardLabels}
                                     selectedLabelIds={selectedLabelIds}
                                     onChange={setSelectedLabelIds}
@@ -418,6 +420,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px', width: '100%', alignItems: 'center' }}>
                                         <div style={{ width: '85%', textAlign: 'center' }}>
                                             <LabelFilter
+                                                title={labelTermName}
                                                 labels={boardLabels}
                                                 selectedLabelIds={selectedLabelIds}
                                                 onChange={setSelectedLabelIds}
