@@ -153,6 +153,11 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
     const [statsCustomPrompt, setStatsCustomPrompt] = useState('');
     const [isImprovingPrompt, setIsImprovingPrompt] = useState(false);
 
+    // Naming Configuration
+    const [namingCard, setNamingCard] = useState('');
+    const [namingList, setNamingList] = useState('');
+    const [namingBoard, setNamingBoard] = useState('');
+
     // Slideshow Settings
     const [slideshowInterval, setSlideshowInterval] = useState(10);
     useEffect(() => {
@@ -430,6 +435,12 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
             setStatsIncludedLists(statsSettings.includedLists || []);
             setStatsCustomPrompt(statsSettings.customAIPrompt || '');
 
+            // Naming Configuration
+            const namingSettings = userSettings?.naming || {};
+            setNamingCard(namingSettings.card || '');
+            setNamingList(namingSettings.list || '');
+            setNamingBoard(namingSettings.board || '');
+
             // Slideshow
             if (userSettings?.slideshowInterval) setSlideshowInterval(userSettings.slideshowInterval);
             else setSlideshowInterval(10);
@@ -693,10 +704,12 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                     showArchived: statsShowArchived,
                     includedLists: statsIncludedLists,
                     customAIPrompt: statsCustomPrompt
+                },
+                naming: {
+                    card: namingCard.trim() || undefined,
+                    list: namingList.trim() || undefined,
+                    board: namingBoard.trim() || undefined
                 }
-
-
-
             };
 
             const storedData = JSON.parse(localStorage.getItem('trelloUserData') || '{}');
@@ -1781,6 +1794,48 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                                     <label htmlFor="ignoreCompletedCards" style={{ marginLeft: '10px', cursor: 'pointer' }}>Ignore Completed Cards (Due Complete)</label>
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="admin-section" id="section-naming" style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+                                    <h3>Naming configuration</h3>
+                                    <p style={{ fontSize: '0.9em', color: '#666', marginTop: '-10px', marginBottom: '15px' }}>
+                                        Customize the terminology used across your Dashboard, Map, and Statistics views. By default, it will use "Card", "List", and "Board". Leave empty to use defaults.
+                                    </p>
+                                    
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <label style={{ fontWeight: 'bold' }}>"Card" is called...</label>
+                                            <input 
+                                                type="text" 
+                                                value={namingCard} 
+                                                onChange={e => setNamingCard(e.target.value)} 
+                                                placeholder="e.g. Task, Job, Ticket"
+                                                style={{ width: '250px', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginTop: '5px' }}
+                                            />
+                                        </div>
+                                        
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <label style={{ fontWeight: 'bold' }}>"List" is called...</label>
+                                            <input 
+                                                type="text" 
+                                                value={namingList} 
+                                                onChange={e => setNamingList(e.target.value)} 
+                                                placeholder="e.g. Phase, Stage, Status"
+                                                style={{ width: '250px', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginTop: '5px' }}
+                                            />
+                                        </div>
+                                        
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <label style={{ fontWeight: 'bold' }}>"Board" is called...</label>
+                                            <input 
+                                                type="text" 
+                                                value={namingBoard} 
+                                                onChange={e => setNamingBoard(e.target.value)} 
+                                                placeholder="e.g. Project, Sprint, Portfolio"
+                                                style={{ width: '250px', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginTop: '5px' }}
+                                            />
                                         </div>
                                     </div>
                                 </div>

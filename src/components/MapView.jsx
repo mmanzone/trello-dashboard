@@ -10,6 +10,7 @@ import { ICONS } from './common/IconPicker';
 import MapFilters from './MapFilters';
 import { loadGoogleMaps } from '/src/utils/googleMapsLoader';
 import { marked } from 'marked';
+import { getTerminology } from '/src/utils/terminology';
 import Dashboard from './Dashboard'; // For Slideshow
 import HamburgerMenu from './common/HamburgerMenu';
 import '/src/styles/map.css';
@@ -486,6 +487,11 @@ const MapView = ({ user, settings, onClose, onShowSettings, onLogout, onShowTask
     const updateTrelloCoordinates = localStorage.getItem('updateTrelloCoordinates_' + boardId) === 'true';
     const enableCardMove = localStorage.getItem('enableCardMove_' + boardId) === 'true';
     const enableStreetView = localStorage.getItem('enableStreetView_' + boardId) === 'true';
+    
+    // Naming config
+    const terms = getTerminology(settings);
+    const CardsTerm = terms.cards;
+    const CardTerm = terms.card;
 
     const savedRefresh = localStorage.getItem(STORAGE_KEYS.REFRESH_INTERVAL + boardId);
     const defaultRefreshSetting = { value: 1, unit: 'minutes' };
@@ -638,7 +644,7 @@ const MapView = ({ user, settings, onClose, onShowSettings, onLogout, onShowTask
     const loadData = useCallback(async (isRefresh = false) => {
         if (!user || !boardId || isFetchingRef.current) return;
         isFetchingRef.current = true;
-        if (!isRefresh) { setLoading(true); setStatus('Loading cards...'); }
+        if (!isRefresh) { setLoading(true); setStatus(`Loading ${CardsTerm.toLowerCase()}...`); }
         try {
             const currentLayout = getPersistentLayout(user.id, boardId);
             setBlocks(currentLayout);
@@ -1300,7 +1306,7 @@ const MapView = ({ user, settings, onClose, onShowSettings, onLogout, onShowTask
                             {/* Section 0: Mapped Stats (Moved to Top) */}
                             <div className="hamburger-section" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '10px', marginBottom: '15px' }}>
                                 <div style={{ fontSize: '0.9em', color: 'var(--text-secondary)' }}>
-                                    Mapped: {visibleMarkersCount} / {totalFilteredCards} cards
+                                    Mapped: {visibleMarkersCount} / {totalFilteredCards} {CardsTerm.toLowerCase()}
                                 </div>
                             </div>
 

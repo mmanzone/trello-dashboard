@@ -7,12 +7,17 @@ import { Sun, Moon, Sparkles, Loader2 } from 'lucide-react';
 import DigitalClock from './common/DigitalClock';
 import HamburgerMenu from './common/HamburgerMenu';
 import { marked } from 'marked';
+import { getTerminology } from '../utils/terminology';
 
 const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLogout }) => {
     const [cards, setCards] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const { theme, toggleTheme } = useDarkMode();
+    
+    // Naming config
+    const terms = getTerminology(settings);
+    const CardsTerm = terms.cards;
     
     // AI Summary State
     const [summaryText, setSummaryText] = useState('');
@@ -30,6 +35,7 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
 
     // Data for charts
     const [allLabels, setAllLabels] = useState([]);
+    const [members, setMembers] = useState([]);
 
     // Map Config
     const enableMapView = settings?.enableMapView;
@@ -54,8 +60,12 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                 const labelsData = await trelloFetch(`/boards/${boardId}/labels`, user.token);
                 setAllLabels(labelsData);
 
-                // 2. Fetch Cards
-                const cardsData = await trelloFetch(`/boards/${boardId}/cards?fields=id,name,labels,idList,due,dueComplete,dateLastActivity,desc,pos,coordinates,badges,idMembers&pluginData=true`, user.token);
+                // 2. Fetch Members
+                const membersData = await trelloFetch(`/boards/${boardId}/members?fields=id,fullName`, user.token);
+                setMembers(membersData);
+
+                // 3. Fetch Cards
+                const cardsData = await trelloFetch(`/boards/${boardId}/cards?fields=id,name,labels,idList,due,dueComplete,dateLastActivity,desc,pos,coordinates,badges,idMembers&pluginData=true&actions=commentCard`, user.token);
 
                 // Process coords (omitted for brevity as map logs are gone, but we keep structure)
                 const processedCards = cardsData.map(c => {
@@ -465,8 +475,21 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                     const optimizedCard = { name: c.name };
                     if (c.desc) optimizedCard.desc = c.desc.replace(/[\r\n]+/g, ' ').substring(0, 60).trim() + '...';
                     if (c.labels && c.labels.length > 0) optimizedCard.labels = c.labels.map(l => l.name || l.color);
-                    if (c.badges?.comments > 0) optimizedCard.comments = c.badges.comments;
-                    if (c.idMembers?.length > 0) optimizedCard.membersCount = c.idMembers.length;
+                    
+                    if (c.idMembers?.length > 0) {
+                        optimizedCard.members = c.idMembers.map(id => {
+                            const m = members.find(mbr => mbr.id === id);
+                            return m ? m.fullName : id;
+                        });
+                    }
+                    if (c.actions && c.actions.length > 0) {
+                        optimizedCard.comments = c.actions
+                            .filter(a => a.type === 'commentCard' && a.data?.text)
+                            .map(a => a.data.text.substring(0, 100)); // Cap to 100chars per comment to protect size
+                    } else if (c.badges?.comments > 0) {
+                        optimizedCard.commentsCount = c.badges.comments;
+                    }
+
                     if (c.coordinates) optimizedCard.coords = { 
                         lat: Math.round(c.coordinates.lat * 1000) / 1000, 
                         lng: Math.round(c.coordinates.lng * 1000) / 1000 
@@ -677,15 +700,24 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                                     <Sparkles size={20} />
                                     <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>AI Summary for the period</h3>
                                 </div>
-                                <button 
-                                    className="button-primary" 
-                                    onClick={handleGenerateSummary} 
-                                    disabled={isGeneratingSummary}
-                                    style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', fontSize: '0.9em' }}
-                                >
-                                    {isGeneratingSummary ? <Loader2 size={16} className="spin" /> : <Sparkles size={16} />}
-                                    {isGeneratingSummary ? 'Generating...' : 'Generate Summary'}
-                                </button>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                    <button 
+                                        className="button-link"
+                                        onClick={onShowSettings}
+                                        style={{ fontSize: '0.85em', textDecoration: 'underline', color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                                    >
+                                        Create your custom prompt
+                                    </button>
+                                    <button 
+                                        className="button-primary" 
+                                        onClick={handleGenerateSummary} 
+                                        disabled={isGeneratingSummary}
+                                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', fontSize: '0.9em' }}
+                                    >
+                                        {isGeneratingSummary ? <Loader2 size={16} className="spin" /> : <Sparkles size={16} />}
+                                        {isGeneratingSummary ? 'Generating...' : 'Generate Summary'}
+                                    </button>
+                                </div>
                             </div>
                             
                             {summaryText && (
@@ -699,7 +731,7 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
 
                         <div className="form-card" id="card-line-chart" style={{ width: '100%', minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                                <h3>Cards Created / Completed</h3>
+                                <h3 style={{ textTransform: 'capitalize' }}>{CardsTerm} Created / Completed</h3>
                                 <div style={{ display: 'flex', gap: '5px' }}>
                                     <select value={granularity} onChange={e => setGranularity(e.target.value)} style={{ padding: '2px', fontSize: '0.9em' }}>
                                         <option value="day">By Day</option>

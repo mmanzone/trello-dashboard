@@ -7,6 +7,7 @@ import {
 import {
     convertIntervalToSeconds, getOrGenerateRandomColor, formatDynamicCountdown
 } from '../utils/helpers';
+import { getTerminology } from '../utils/terminology';
 import { useDarkMode } from '../context/DarkModeContext';
 import DigitalClock from './common/DigitalClock';
 import CardDetailsModal from './common/CardDetailsModal';
@@ -64,6 +65,10 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
     const boardId = settings?.boardId;
     const boardName = settings?.boardName;
     const listsFromSettings = settings?.selectedLists || [];
+    
+    // Naming config
+    const terms = getTerminology(settings);
+    const BoardTerm = terms.board;
 
     const sectionsLayout = boardId ? getPersistentLayout(user.id, boardId) : DEFAULT_LAYOUT;
     const persistentColors = getPersistentColors(user.id);
@@ -310,7 +315,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                     <button className="logout-button" onClick={onLogout}>Logout</button>
                 </div>
                 <p style={{ textAlign: 'center', marginTop: '50px' }}>
-                    No Trello Board configured. Please go to settings to set up your first dashboard.
+                    No Trello {BoardTerm} configured. Please go to settings to set up your first dashboard.
                 </p>
                 <div style={{ textAlign: 'center', marginTop: '20px' }}>
                     <button className="settings-button" onClick={onShowSettings}>Go to Settings</button>

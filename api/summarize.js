@@ -41,8 +41,8 @@ Provide a concise, single-paragraph summary of these cards.
 The summary MUST cover the following:
 1. The volume of cards (created vs completed).
 2. The type or trends of task descriptions & labels.
-3. Highlight any cards with significant interest and activity (look at comments count, number of members, etc.).
-4. If location coordinates are available for any cards, summarize where the activity is concentrated.
+4. Highlight any cards with significant interest and activity (look at comments count or verbatim comments text, and the specific names of members involved). When members or comment text is provided, summarize or quote them.
+5. If location coordinates are available for any cards, summarize where the activity is concentrated.
 5. If the analyzed period is longer than 1 month (${diffDays} days), include a quick week-over-week trend summary.
 
 Keep the response to exactly one comprehensive paragraph. It will be displayed at the top of a statistics page. Do not include greetings. Use Markdown formatting for emphasis.`;
