@@ -564,6 +564,7 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                     {/* Desktop Actions - Hidden on Mobile */}
                     <div className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                         <LabelFilter
+                            title={LabelsTerm}
                             labels={allLabels}
                             selectedLabelIds={selectedLabelIds}
                             onChange={setSelectedLabelIds}
@@ -608,6 +609,7 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px', width: '100%', alignItems: 'center' }}>
                                     <div style={{ width: '85%', textAlign: 'center' }}>
                                         <LabelFilter
+                                            title={LabelsTerm}
                                             labels={allLabels}
                                             selectedLabelIds={selectedLabelIds}
                                             onChange={setSelectedLabelIds}
