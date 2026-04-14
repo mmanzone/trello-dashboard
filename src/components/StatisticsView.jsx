@@ -18,6 +18,7 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
     // Naming config
     const terms = getTerminology(settings);
     const CardsTerm = terms.cards;
+    const LabelsTerm = terms.labels ? terms.labels.charAt(0).toUpperCase() + terms.labels.slice(1) : 'Labels';
     
     // AI Summary State
     const [summaryText, setSummaryText] = useState('');
@@ -517,23 +518,9 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                         errorMsg = errorData.error || errorMsg;
                     } catch(e) {}
                     
-                    const msgStr = typeof errorMsg === 'string' ? errorMsg.toLowerCase() : JSON.stringify(errorMsg).toLowerCase();
-                    
-                    if (response.status === 503 || response.status === 504 || msgStr.includes('high demand') || msgStr.includes('unavailable')) {
-                        if (attempts < maxAttempts) {
-                            setSummaryText(`*The AI model is experiencing high demand. Retrying... (Attempt ${attempts + 1}/${maxAttempts})*`);
-                            await new Promise(r => setTimeout(r, 2500)); // wait 2.5s before retry
-                            continue; // Retry loop
-                        } else {
-                            setSummaryText(`*The AI model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again in a few moments.*`);
-                            setIsGeneratingSummary(false);
-                            return;
-                        }
-                    } else {
-                        setSummaryText(`**Error generating summary:** ${typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg)}`);
-                        setIsGeneratingSummary(false);
-                        return;
-                    }
+                    setSummaryText(`*The AI model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.* \n\n<details><summary>Developer Info</summary>${typeof errorMsg === 'object' ? JSON.stringify(errorMsg) : errorMsg}</details>`);
+                    setIsGeneratingSummary(false);
+                    return;
                 }
 
                 const reader = response.body.getReader();
@@ -749,7 +736,7 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
 
                         <div className="form-card" id="card-pie-chart" style={{ width: '100%', minHeight: '500px', display: 'flex', flexDirection: 'column' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                                <h3>Labels Breakdown - {filterLabelText}</h3>
+                                <h3>{LabelsTerm} Breakdown - {filterLabelText}</h3>
                                 <button onClick={() => handleExport('card-pie-chart', 'labels')} style={{ fontSize: '0.8em', padding: '2px 5px' }}>Export</button>
                             </div>
                             <div style={{ flex: 1, position: 'relative' }}>
