@@ -5,7 +5,9 @@ export const getTerminology = (settings) => {
         list: 'List',
         lists: 'Lists',
         board: 'Board',
-        boards: 'Boards'
+        boards: 'Boards',
+        label: 'Label',
+        labels: 'Labels'
     };
     
     const naming = settings?.naming || {};
@@ -15,6 +17,8 @@ export const getTerminology = (settings) => {
         list: naming.list || defaultTerms.list,
         lists: naming.list ? `${naming.list}s` : defaultTerms.lists,
         board: naming.board || defaultTerms.board,
-        boards: naming.board ? `${naming.board}s` : defaultTerms.boards
+        boards: naming.board ? `${naming.board}s` : defaultTerms.boards,
+        label: naming.label || defaultTerms.label,
+        labels: naming.label ? `${naming.label}s` : defaultTerms.labels
     };
 };

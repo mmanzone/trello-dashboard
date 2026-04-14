@@ -935,7 +935,7 @@ input:checked+.slider:before {
 .time-filter-select {
     padding: 6px 10px;
     font-size: 0.9em;
-    max-width: 120px;
+    max-width: 240px;
     text-overflow: ellipsis;
 }
 

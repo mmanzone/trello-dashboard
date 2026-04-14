@@ -587,6 +587,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                     sectionsLayout={sectionsLayout}
                     ignoreTemplateCards={ignoreTemplateCards}
                     ignoreNoDescCards={ignoreNoDescCards}
+                    settings={settings}
                 />
             )}
 
@@ -757,6 +758,7 @@ const DashboardContent = ({
                     sectionsLayout={sectionsLayout}
                     ignoreTemplateCards={ignoreTemplateCards}
                     ignoreNoDescCards={ignoreNoDescCards}
+                    settings={settings}
                 />
             )}
         </div>

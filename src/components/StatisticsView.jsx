@@ -342,7 +342,7 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                         legend: { position: 'top' },
                         title: {
                             display: true,
-                            text: `${totalCreated} cards created / ${totalCompleted} Completed - ${filterLabelText}${labelInfo}`,
+                            text: `${totalCreated} ${CardsTerm.toLowerCase()} created / ${totalCompleted} Completed - ${filterLabelText}${labelInfo}`,
                             font: { size: 16 }
                         },
                         datalabels: { display: false }

@@ -157,6 +157,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
     const [namingCard, setNamingCard] = useState('');
     const [namingList, setNamingList] = useState('');
     const [namingBoard, setNamingBoard] = useState('');
+    const [namingLabel, setNamingLabel] = useState('');
 
     // Slideshow Settings
     const [slideshowInterval, setSlideshowInterval] = useState(10);
@@ -440,6 +441,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
             setNamingCard(namingSettings.card || '');
             setNamingList(namingSettings.list || '');
             setNamingBoard(namingSettings.board || '');
+            setNamingLabel(namingSettings.label || '');
 
             // Slideshow
             if (userSettings?.slideshowInterval) setSlideshowInterval(userSettings.slideshowInterval);
@@ -708,7 +710,8 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                 naming: {
                     card: namingCard.trim() || undefined,
                     list: namingList.trim() || undefined,
-                    board: namingBoard.trim() || undefined
+                    board: namingBoard.trim() || undefined,
+                    label: namingLabel.trim() || undefined
                 }
             };
 
@@ -1835,6 +1838,17 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                                 value={namingBoard} 
                                                 onChange={e => setNamingBoard(e.target.value)} 
                                                 placeholder="e.g. Project, Sprint, Portfolio"
+                                                style={{ width: '250px', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginTop: '5px' }}
+                                            />
+                                        </div>
+                                        
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <label style={{ fontWeight: 'bold' }}>"Label" is called...</label>
+                                            <input 
+                                                type="text" 
+                                                value={namingLabel} 
+                                                onChange={e => setNamingLabel(e.target.value)} 
+                                                placeholder="e.g. Tag, Category, Group"
                                                 style={{ width: '250px', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginTop: '5px' }}
                                             />
                                         </div>

@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { trelloFetch } from '../../api/trello';
 import { useDarkMode } from '../../context/DarkModeContext';
 import { getLabelTextColor } from '../../utils/helpers';
+import { getTerminology } from '../../utils/terminology';
 
-const CardDetailsModal = ({ listId, listName, color, token, onClose, sectionsLayout, ignoreTemplateCards, ignoreNoDescCards }) => {
+const CardDetailsModal = ({ listId, listName, color, token, onClose, sectionsLayout, ignoreTemplateCards, ignoreNoDescCards, settings }) => {
     const [cards, setCards] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const { theme } = useDarkMode();
+    
+    const terms = getTerminology(settings);
+    const CardsTerm = terms.cards;
 
     // Determine if the first card should be ignored based on block settings
     const section = sectionsLayout.find(s => s.listIds.includes(listId));
@@ -38,12 +42,12 @@ const CardDetailsModal = ({ listId, listName, color, token, onClose, sectionsLay
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" onClick={e => e.stopPropagation()}>
                 <span className="modal-close" onClick={onClose} style={{ float: 'right', fontSize: '1.5em', cursor: 'pointer' }}>&times;</span>
-                <h3 style={{ color: color, borderColor: color }}>Cards in: {listName} ({cards.length})</h3>
+                <h3 style={{ color: color, borderColor: color }}>{CardsTerm} in: {listName} ({cards.length})</h3>
 
-                {loading && <p>Loading cards...</p>}
+                {loading && <p>Loading {CardsTerm.toLowerCase()}...</p>}
                 {error && <p className="error">{error}</p>}
 
-                {!loading && cards.length === 0 && <p>No cards found in this list.</p>}
+                {!loading && cards.length === 0 && <p>No {CardsTerm.toLowerCase()} found in this list.</p>}
 
                 {!loading && cards.length > 0 && (
                     <div>
