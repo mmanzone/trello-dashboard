@@ -687,7 +687,7 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                                     <Sparkles size={20} />
                                     <h3 style={{ margin: 0, color: 'var(--text-primary)', display: 'flex', alignItems: 'center' }}>
                                         AI Summary for the period
-                                        <span style={{ marginLeft: '10px', fontSize: '0.6em', padding: '2px 6px', backgroundColor: 'var(--accent)', color: 'white', borderRadius: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>Beta</span>
+                                        <span style={{ marginLeft: '10px', fontSize: '0.65em', padding: '2px 8px', backgroundColor: '#0052cc', color: 'white', borderRadius: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Beta</span>
                                     </h3>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
