@@ -1685,7 +1685,10 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                         <div style={{ marginTop: '20px', padding: '15px', background: '#f0f4f8', borderRadius: '6px', border: '1px solid #cce' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
                                                 <Sparkles size={18} color="#0052cc" />
-                                                <label style={{ fontWeight: 'bold', margin: 0, color: '#0052cc' }}>Custom AI Prompt (Optional)</label>
+                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                    <label style={{ fontWeight: 'bold', margin: 0, color: '#0052cc' }}>Custom AI Prompt (Optional)</label>
+                                                    <span style={{ marginLeft: '10px', fontSize: '0.7em', padding: '2px 6px', backgroundColor: '#0052cc', color: 'white', borderRadius: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>Beta</span>
+                                                </div>
                                             </div>
                                             <p style={{ fontSize: '0.9em', color: '#666', marginTop: '0', marginBottom: '10px' }}>Provide additional context or specific instructions to the AI when generating a summary for this board. This context will be added to the core system instructions.</p>
                                             <textarea 

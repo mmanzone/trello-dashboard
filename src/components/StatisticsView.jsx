@@ -685,7 +685,10 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: summaryText ? '15px' : '0' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent)' }}>
                                     <Sparkles size={20} />
-                                    <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>AI Summary for the period</h3>
+                                    <h3 style={{ margin: 0, color: 'var(--text-primary)', display: 'flex', alignItems: 'center' }}>
+                                        AI Summary for the period
+                                        <span style={{ marginLeft: '10px', fontSize: '0.6em', padding: '2px 6px', backgroundColor: 'var(--accent)', color: 'white', borderRadius: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>Beta</span>
+                                    </h3>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                                     <button 
