@@ -39,13 +39,23 @@ const LandingPage = () => {
                 <div className="feature-card">
                     <div className="icon">🔒</div>
                     <h3>Privacy by Design</h3>
-                    <p>We believe in "Local First." Your dashboard configuration lives on your device. Server storage is only used if you explicitly choose to share a configuration link with a colleague.</p>
+                    <p>We believe in "Local First." Your dashboard configuration lives on your device. Server storage is only used if you explicitly choose to share a configuration link.</p>
+                </div>
+
+                <div className="feature-card" style={{ border: '1px solid #0052cc', background: 'rgba(0, 82, 204, 0.05)' }}>
+                    <div className="icon">✨</div>
+                    <h3 style={{ display: 'flex', alignItems: 'center' }}>
+                        AI Summaries 
+                        <span style={{ marginLeft: '10px', fontSize: '0.6em', padding: '2px 8px', backgroundColor: '#0052cc', color: 'white', borderRadius: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Beta</span>
+                    </h3>
+                    <p>Unlock powerful team insights instantly with AI. Generate plain-English briefings of your workflow dynamics directly within your statistics page.</p>
                 </div>
             </section>
 
             <section className="details">
                 <h2>Why Trellops?</h2>
                 <ul>
+                    <li><strong>Custom Terminology:</strong> Override hardcoded Trello vocabulary (e.g. "Card" to "Task") to natively fit your workflow.</li>
                     <li><strong>Custom Icons:</strong> Assign specific icons to blocks or override them based on Trello labels.</li>
                     <li><strong>Smart Filters:</strong> Filter card totals by creation date to spot trends.</li>
                     <li><strong>Actionable Map:</strong> Move cards to different lists directly from the map interface (requires write permission).</li>

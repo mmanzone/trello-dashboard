@@ -1087,8 +1087,9 @@ input:checked+.slider:before {
 }
 
 .features {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 30px;
     padding: 60px 40px;
     max-width: 1200px;
@@ -1096,6 +1097,8 @@ input:checked+.slider:before {
 }
 
 .feature-card {
+    flex: 1 1 300px;
+    max-width: 350px;
     background: #1e1e1e;
     padding: 30px;
     border-radius: 12px;
