@@ -338,6 +338,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                 user={user}
                 ignoreTemplateCards={ignoreTemplateCards}
                 ignoreNoDescCards={ignoreNoDescCards}
+                settings={settings}
                 modalList={modalList}
             />
         );
@@ -502,6 +503,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                     user={user}
                     ignoreTemplateCards={ignoreTemplateCards}
                     ignoreNoDescCards={ignoreNoDescCards}
+                    settings={settings}
                     modalList={modalList}
                 />
             )}
@@ -669,7 +671,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
 const DashboardContent = ({
     sectionsLayout, blocksMap, counts, allListsMap,
     handleTileClick, handleToggleCollapse, handleCloseModal,
-    user, ignoreTemplateCards, ignoreNoDescCards, modalList
+    user, ignoreTemplateCards, ignoreNoDescCards, modalList, settings
 }) => {
     return (
         <div style={{ flex: 1, overflowY: 'auto', padding: '10px', paddingBottom: '80px', position: 'relative', zIndex: 1 }}>
