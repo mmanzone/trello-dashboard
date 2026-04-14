@@ -2102,8 +2102,12 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                 )
             }
 
-            <div style={{ textAlign: 'center', marginTop: '30px', marginBottom: '10px', fontSize: '0.85em', color: '#aaa', fontWeight: 'bold' }}>
-                v4.5.{__BUILD_ID__ || 1000} - Jan 09, 2026
+            <div style={{ textAlign: 'center', marginTop: '30px', marginBottom: '10px', fontSize: '0.85em', color: '#aaaaaa', fontWeight: 'bold' }}>
+                v4.5.{__BUILD_ID__ || 1000} - April 2026
+            </div>
+            <div style={{ textAlign: 'center', marginBottom: '30px', fontSize: '0.85em', fontWeight: 'bold' }}>
+                <a href="/help.html" target="_blank" style={{ color: '#888888', textDecoration: 'underline', marginRight: '15px' }}>User Guide</a>
+                <a href="/privacy.html" target="_blank" style={{ color: '#888888', textDecoration: 'underline' }}>Privacy Policy</a>
             </div>
 
             {
