@@ -1717,8 +1717,9 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                     activeTab === 'other' && (
                         <div className="tab-content">
                             {selectedBoard ? (
-                                <div className="admin-section" id="section-4">
-                                    <h3>Other Settings for {selectedBoard.name}</h3>
+                                <>
+                                    <div className="admin-section" id="section-4">
+                                        <h3>Other Settings for {selectedBoard.name}</h3>
                                     <p style={{ fontSize: '0.9em', color: '#666', marginTop: '-10px', marginBottom: '15px' }}>
                                         These settings are saved separately for each Trello board. Auto-refresh must be at least 15 seconds; recommended 30 seconds for live displays. The digital clock appears in the top-left corner of the screen and follows the local computer time format. Template Cards in Trello can be excluded from the count (recommended); completed cards can also be excluded.
                                     </p>
@@ -1839,6 +1840,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                         </div>
                                     </div>
                                 </div>
+                                </>
                             ) : (
                                 <div style={{ marginTop: '20px', fontStyle: 'italic', color: '#666' }}>Select a board to configure settings</div>
                             )}
