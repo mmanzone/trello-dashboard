@@ -132,6 +132,7 @@
             }
         }
     </style>
+  <script type="module" crossorigin src="/assets/modulepreload-polyfill-B5Qt9EMX.js"></script>
 </head>
 
 <body>
@@ -148,10 +149,35 @@
         </p>
     </header>
 
+    <div class="mermaid" style="display: flex; justify-content: center; margin: 2rem 0;">
+graph TD
+    A[Trellops: Master Your Workflow] --> B(1. Local-First Privacy)
+    A --> C(2. Custom Dashboards)
+    A --> D(3. Geo-Spatial Mapping)
+    A --> E(4. Advanced AI & Filters)
+    A --> F(5. Seamless Sharing)
+    
+    B -->|Secure Trello Login| B1[Data Stays on Your Machine]
+    C -->|Drag & Drop| C1[Colour-Code & Organise Blocks]
+    D -->|Coordinates & Addresses| D1[Plot Cards on Interactive Maps]
+    E -->|Plain-English Updates| E1[AI Summaries & Time Filters]
+    F -->|Unique Links| F1[Share Setups with the Team]
+    
+    style A fill:#0052CC,stroke:#0052CC,stroke-width:2px,color:#fff,font-weight:bold
+    style B fill:#E3FCEF,stroke:#36B37E,stroke-width:2px
+    style C fill:#DEEBFF,stroke:#2684FF,stroke-width:2px
+    style D fill:#FFFAE6,stroke:#FFC400,stroke-width:2px
+    style E fill:#EAE6FF,stroke:#6554C0,stroke-width:2px
+    style F fill:#FFEBE6,stroke:#FF5630,stroke-width:2px
+    </div>
+
     <hr>
 
     <section id="getting-started">
-        <h2>Getting Started & Privacy</h2>
+        <h2 style="display: flex; align-items: center; gap: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>
+            <span>Getting Started & Privacy</span>
+        </h2>
 
         <h3>How to Login</h3>
         <p>To use Trellops, simply log in with your existing Atlassian Trello user account. You will be asked to grant
@@ -173,7 +199,10 @@
     <hr>
 
     <section id="dashboard-setup">
-        <h2>Setting up your Dashboard</h2>
+        <h2 style="display: flex; align-items: center; gap: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><path d="M3 14h7v7H3z"></path></svg>
+            <span>Setting up your Dashboard</span>
+        </h2>
         <p>Once you select a board, head to the <strong>Settings</strong> menu. The interface is now split into three
             tabs: <em>Dashboard</em>, <em>Map</em>, and <em>Other</em>.</p>
 
@@ -202,7 +231,10 @@
     <hr>
 
     <section id="map-view">
-        <h2>Using the Map View (New!)</h2>
+        <h2 style="display: flex; align-items: center; gap: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <span>Using the Map View (New!)</span>
+        </h2>
         <p>Visualise your workload geographically. This feature automatically plots your cards onto a map based on their
             location data.</p>
 
@@ -233,13 +265,18 @@
             <li><strong>Home Address:</strong> Set a "Home Address" to mark your HQ or office location on the map.</li>
             <li><strong>Move Cards:</strong> You can drag a card from one location to another list directly on the map
                 (Requires "Write" permission).</li>
+            <li><strong>Street View (Optional):</strong> Head to Map Settings to enable "Show street view". When clicked, card popups will provide a direct <em>Google Street View</em> link for the card's address.</li>
+            <li><strong>Smart Zoom & Fit:</strong> The "Fit Map" button automatically repositions to view all your pinned locations. If you only have one pin on the map, it will seamlessly smart-zoom down to comfortable street level (instead of maximum zoom).</li>
         </ul>
     </section>
 
     <hr>
 
     <section id="advanced">
-        <h2>Advanced Configuration & Filtering</h2>
+        <h2 style="display: flex; align-items: center; gap: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+            <span>Advanced Configuration & Filtering</span>
+        </h2>
 
         <h3>Handling "Description Cards"</h3>
         <p>Sometimes, the first card in a Trello list isn't a task—it's a set of instructions or a header. This makes
@@ -250,6 +287,15 @@
                 actual work items.</li>
             <li><strong>Display as Description:</strong> You can choose to display the text of that first card on the
                 dashboard tile, acting as a header or instruction for your team.</li>
+        </ul>
+
+        <h3>Terminology Customisation</h3>
+        <p>If terms like "Board" or "Card" don't match your company's vernacular, head to <strong>Settings -> Other Settings</strong> and look for <em>Naming Config</em>. You can override these terms (e.g., changing "Card" to "Task", or "Label" to "Tag"), and the app will natively apply your vocabulary across your entire dashboard and statistics views.</p>
+
+        <h3>Statistics & AI Summaries (Beta)</h3>
+        <p>Navigate to the <code>/stats</code> page to access powerful insights over any specified time boundary. We also offer an innovative <strong>AI Summary</strong> feature that provides a plain-English briefing capturing the highlights of your team's workflow within that time frame.</p>
+        <ul>
+            <li><strong>AI Context Prompts:</strong> Go to the bottom of the Settings menu to define an optional Custom AI Prompt to guide exactly how you want your summaries formed (e.g., "Summarise as a daily briefing").</li>
         </ul>
 
         <h3>Dashboard Extras</h3>
@@ -268,7 +314,10 @@
     <hr>
 
     <section id="sharing">
-        <h2>Sharing Your Configuration</h2>
+        <h2 style="display: flex; align-items: center; gap: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+            <span>Sharing Your Configuration</span>
+        </h2>
         <p>You can share your perfect dashboard setup with colleagues so they don't have to build it from scratch.</p>
 
         <h3>Option 1: Share via Link (New)</h3>
@@ -283,7 +332,10 @@
     <hr>
 
     <section id="video-walkthrough">
-        <h2>Video Walkthrough</h2>
+        <h2 style="display: flex; align-items: center; gap: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><path d="M10 8l6 4-6 4V8z"></path></svg>
+            <span>Video Walkthrough</span>
+        </h2>
         <p>Watch a brief overview of the Trellops features.</p>
         <div class="video-embed">
             <div class="sp-embed-player" data-id="cTXq3anqlqS" data-aspect-ratio="1.825352"
