@@ -7,6 +7,7 @@ import {
 import {
     convertIntervalToSeconds, getOrGenerateRandomColor, formatDynamicCountdown
 } from '../utils/helpers';
+import { getTerminology } from '../utils/terminology';
 import { useDarkMode } from '../context/DarkModeContext';
 import DigitalClock from './common/DigitalClock';
 import CardDetailsModal from './common/CardDetailsModal';
@@ -64,6 +65,10 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
     const boardId = settings?.boardId;
     const boardName = settings?.boardName;
     const listsFromSettings = settings?.selectedLists || [];
+    
+    // Naming config
+    const terms = getTerminology(settings);
+    const BoardTerm = terms.board;
 
     const sectionsLayout = boardId ? getPersistentLayout(user.id, boardId) : DEFAULT_LAYOUT;
     const persistentColors = getPersistentColors(user.id);
@@ -310,7 +315,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                     <button className="logout-button" onClick={onLogout}>Logout</button>
                 </div>
                 <p style={{ textAlign: 'center', marginTop: '50px' }}>
-                    No Trello Board configured. Please go to settings to set up your first dashboard.
+                    No Trello {BoardTerm} configured. Please go to settings to set up your first dashboard.
                 </p>
                 <div style={{ textAlign: 'center', marginTop: '20px' }}>
                     <button className="settings-button" onClick={onShowSettings}>Go to Settings</button>
@@ -333,6 +338,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                 user={user}
                 ignoreTemplateCards={ignoreTemplateCards}
                 ignoreNoDescCards={ignoreNoDescCards}
+                settings={settings}
                 modalList={modalList}
             />
         );
@@ -497,6 +503,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                     user={user}
                     ignoreTemplateCards={ignoreTemplateCards}
                     ignoreNoDescCards={ignoreNoDescCards}
+                    settings={settings}
                     modalList={modalList}
                 />
             )}
@@ -582,6 +589,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                     sectionsLayout={sectionsLayout}
                     ignoreTemplateCards={ignoreTemplateCards}
                     ignoreNoDescCards={ignoreNoDescCards}
+                    settings={settings}
                 />
             )}
 
@@ -663,7 +671,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
 const DashboardContent = ({
     sectionsLayout, blocksMap, counts, allListsMap,
     handleTileClick, handleToggleCollapse, handleCloseModal,
-    user, ignoreTemplateCards, ignoreNoDescCards, modalList
+    user, ignoreTemplateCards, ignoreNoDescCards, modalList, settings
 }) => {
     return (
         <div style={{ flex: 1, overflowY: 'auto', padding: '10px', paddingBottom: '80px', position: 'relative', zIndex: 1 }}>
@@ -752,6 +760,7 @@ const DashboardContent = ({
                     sectionsLayout={sectionsLayout}
                     ignoreTemplateCards={ignoreTemplateCards}
                     ignoreNoDescCards={ignoreNoDescCards}
+                    settings={settings}
                 />
             )}
         </div>

@@ -3,15 +3,26 @@ import { trelloFetch } from '../api/trello';
 import { TIME_FILTERS } from '../utils/constants';
 import LabelFilter from './common/LabelFilter';
 import { useDarkMode } from '../context/DarkModeContext';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Sparkles, Loader2 } from 'lucide-react';
 import DigitalClock from './common/DigitalClock';
 import HamburgerMenu from './common/HamburgerMenu';
+import { marked } from 'marked';
+import { getTerminology } from '../utils/terminology';
 
 const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLogout }) => {
     const [cards, setCards] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const { theme, toggleTheme } = useDarkMode();
+    
+    // Naming config
+    const terms = getTerminology(settings);
+    const CardsTerm = terms.cards;
+    const LabelsTerm = terms.labels ? terms.labels.charAt(0).toUpperCase() + terms.labels.slice(1) : 'Labels';
+    
+    // AI Summary State
+    const [summaryText, setSummaryText] = useState('');
+    const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
     // Filters
     const [createdFilter, setCreatedFilter] = useState('this_week');
@@ -25,6 +36,7 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
 
     // Data for charts
     const [allLabels, setAllLabels] = useState([]);
+    const [members, setMembers] = useState([]);
 
     // Map Config
     const enableMapView = settings?.enableMapView;
@@ -49,8 +61,12 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                 const labelsData = await trelloFetch(`/boards/${boardId}/labels`, user.token);
                 setAllLabels(labelsData);
 
-                // 2. Fetch Cards
-                const cardsData = await trelloFetch(`/boards/${boardId}/cards?fields=id,name,labels,idList,due,dueComplete,dateLastActivity,desc,pos,coordinates&pluginData=true`, user.token);
+                // 2. Fetch Members
+                const membersData = await trelloFetch(`/boards/${boardId}/members?fields=id,fullName`, user.token);
+                setMembers(membersData);
+
+                // 3. Fetch Cards
+                const cardsData = await trelloFetch(`/boards/${boardId}/cards?fields=id,name,labels,idList,due,dueComplete,dateLastActivity,desc,pos,coordinates,badges,idMembers&pluginData=true&actions=commentCard`, user.token);
 
                 // Process coords (omitted for brevity as map logs are gone, but we keep structure)
                 const processedCards = cardsData.map(c => {
@@ -327,7 +343,7 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                         legend: { position: 'top' },
                         title: {
                             display: true,
-                            text: `${totalCreated} cards created / ${totalCompleted} Completed - ${filterLabelText}${labelInfo}`,
+                            text: `${totalCreated} ${CardsTerm.toLowerCase()} created / ${totalCompleted} Completed - ${filterLabelText}${labelInfo}`,
                             font: { size: 16 }
                         },
                         datalabels: { display: false }
@@ -428,6 +444,113 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
             link.href = canvas.toDataURL();
             link.click();
         });
+    };
+
+    const handleGenerateSummary = async () => {
+        setIsGeneratingSummary(true);
+        setSummaryText('');
+        
+        let attempts = 0;
+        const maxAttempts = 3;
+
+        while (attempts < maxAttempts) {
+            attempts++;
+            try {
+                const range = getFilterRange(createdFilter);
+                const diffDays = range && range.end && range.start ? (range.end.getTime() - range.start.getTime()) / (1000 * 60 * 60 * 24) : 0;
+                
+                const validCreatedCards = cards.filter(matchesLabelFilter).filter(c => isDateInFilter(getCreationDate(c.id), createdFilter));
+                const validCompletedCards = cards.filter(matchesLabelFilter).filter(c => c.dueComplete && c.due && isDateInFilter(new Date(c.due), createdFilter));
+                
+                const uniqueCardsMap = new Map();
+                validCreatedCards.forEach(c => uniqueCardsMap.set(c.id, { ...c, isCreatedInPeriod: true }));
+                validCompletedCards.forEach(c => {
+                   if (uniqueCardsMap.has(c.id)) {
+                       uniqueCardsMap.get(c.id).isCompletedInPeriod = true;
+                   } else {
+                       uniqueCardsMap.set(c.id, { ...c, isCompletedInPeriod: true });
+                   }
+                });
+                
+                const payloadCards = Array.from(uniqueCardsMap.values()).map(c => {
+                    const optimizedCard = { name: c.name };
+                    if (c.desc) optimizedCard.desc = c.desc.replace(/[\r\n]+/g, ' ').substring(0, 60).trim() + '...';
+                    if (c.labels && c.labels.length > 0) optimizedCard.labels = c.labels.map(l => l.name || l.color);
+                    
+                    if (c.idMembers?.length > 0) {
+                        optimizedCard.members = c.idMembers.map(id => {
+                            const m = members.find(mbr => mbr.id === id);
+                            return m ? m.fullName : id;
+                        });
+                    }
+                    if (c.actions && c.actions.length > 0) {
+                        optimizedCard.comments = c.actions
+                            .filter(a => a.type === 'commentCard' && a.data?.text)
+                            .map(a => a.data.text.substring(0, 100)); // Cap to 100chars per comment to protect size
+                    } else if (c.badges?.comments > 0) {
+                        optimizedCard.commentsCount = c.badges.comments;
+                    }
+
+                    if (c.coordinates) optimizedCard.coords = { 
+                        lat: Math.round(c.coordinates.lat * 1000) / 1000, 
+                        lng: Math.round(c.coordinates.lng * 1000) / 1000 
+                    };
+                    if (c.isCreatedInPeriod) optimizedCard.created = true;
+                    if (c.isCompletedInPeriod) optimizedCard.completed = true;
+                    return optimizedCard;
+                });
+
+                const response = await fetch('/api/summarize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cardsData: payloadCards,
+                        periodLabel: filterLabelText,
+                        diffDays,
+                        customPromptContext: settings?.statistics?.customAIPrompt || ''
+                    })
+                });
+
+                if (!response.ok) {
+                    let errorMsg = "An error occurred";
+                    try {
+                        const errorData = await response.json();
+                        errorMsg = errorData.error || errorMsg;
+                    } catch(e) {}
+                    
+                    setSummaryText(`*The AI model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.* \n\n<details><summary>Developer Info</summary>${typeof errorMsg === 'object' ? JSON.stringify(errorMsg) : errorMsg}</details>`);
+                    setIsGeneratingSummary(false);
+                    return;
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let summaryBuffer = "";
+                let done = false;
+
+                while (!done) {
+                    const { value, done: readerDone } = await reader.read();
+                    done = readerDone;
+                    if (value) {
+                        summaryBuffer += decoder.decode(value, { stream: true });
+                        setSummaryText(summaryBuffer); 
+                    }
+                }
+
+                setIsGeneratingSummary(false);
+                return; // Break successful generation
+            } catch (e) {
+                // If network fetch fails completely
+                if (attempts < maxAttempts) {
+                    setSummaryText(`*Network issue detected. Retrying... (Attempt ${attempts + 1}/${maxAttempts})*`);
+                    await new Promise(r => setTimeout(r, 2000));
+                    continue;
+                }
+                setSummaryText(`**Error generating summary:** ${e.message}`);
+                setIsGeneratingSummary(false);
+                return;
+            }
+        }
     };
 
     return (
@@ -557,9 +680,48 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                 ) : (
                     <div id="stats-export-area" className="dashboard-grid" style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '30px', padding: '0 20px' }}>
 
+                        {/* AI Summary Section */}
+                        <div className="form-card" style={{ width: '100%', display: 'flex', flexDirection: 'column', border: '1px solid var(--accent-light)', background: 'var(--bg-secondary)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: summaryText ? '15px' : '0' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent)' }}>
+                                    <Sparkles size={20} />
+                                    <h3 style={{ margin: 0, color: 'var(--text-primary)', display: 'flex', alignItems: 'center' }}>
+                                        AI Summary for the period
+                                        <span style={{ marginLeft: '10px', fontSize: '0.65em', padding: '2px 8px', backgroundColor: '#0052cc', color: 'white', borderRadius: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Beta</span>
+                                    </h3>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                    <button 
+                                        className="button-link"
+                                        onClick={onShowSettings}
+                                        style={{ fontSize: '0.85em', textDecoration: 'underline', color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                                    >
+                                        Create your custom prompt
+                                    </button>
+                                    <button 
+                                        className="button-primary" 
+                                        onClick={handleGenerateSummary} 
+                                        disabled={isGeneratingSummary}
+                                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', fontSize: '0.9em' }}
+                                    >
+                                        {isGeneratingSummary ? <Loader2 size={16} className="spin" /> : <Sparkles size={16} />}
+                                        {isGeneratingSummary ? 'Generating...' : 'Generate Summary'}
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            {summaryText && (
+                                <div 
+                                    className="markdown-content ai-summary-content" 
+                                    style={{ fontSize: '1.05em', lineHeight: '1.6', color: 'var(--text-primary)' }}
+                                    dangerouslySetInnerHTML={{ __html: marked(summaryText) }} 
+                                />
+                            )}
+                        </div>
+
                         <div className="form-card" id="card-line-chart" style={{ width: '100%', minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                                <h3>Cards Created / Completed</h3>
+                                <h3 style={{ textTransform: 'capitalize' }}>{CardsTerm} Created / Completed</h3>
                                 <div style={{ display: 'flex', gap: '5px' }}>
                                     <select value={granularity} onChange={e => setGranularity(e.target.value)} style={{ padding: '2px', fontSize: '0.9em' }}>
                                         <option value="day">By Day</option>
@@ -577,7 +739,7 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
 
                         <div className="form-card" id="card-pie-chart" style={{ width: '100%', minHeight: '500px', display: 'flex', flexDirection: 'column' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                                <h3>Labels Breakdown - {filterLabelText}</h3>
+                                <h3>{LabelsTerm} Breakdown - {filterLabelText}</h3>
                                 <button onClick={() => handleExport('card-pie-chart', 'labels')} style={{ fontSize: '0.8em', padding: '2px 5px' }}>Export</button>
                             </div>
                             <div style={{ flex: 1, position: 'relative' }}>

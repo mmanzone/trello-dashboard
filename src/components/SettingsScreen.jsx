@@ -7,6 +7,7 @@ import ColorPicker from './common/ColorPicker';
 import { getPersistentLayout } from '../utils/persistence';
 import { STORAGE_KEYS, DEFAULT_LAYOUT } from '../utils/constants';
 import { setPersistentColors, getPersistentColors, setPersistentLayout } from '../utils/persistence';
+import { Sparkles, Loader2 } from 'lucide-react';
 import '../styles/settings.css';
 
 const ShareConfigModal = ({ config, onClose, boardName }) => {
@@ -149,6 +150,14 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
     const [enableStats, setEnableStats] = useState(false);
     const [statsShowArchived, setStatsShowArchived] = useState(true);
     const [statsIncludedLists, setStatsIncludedLists] = useState([]);
+    const [statsCustomPrompt, setStatsCustomPrompt] = useState('');
+    const [isImprovingPrompt, setIsImprovingPrompt] = useState(false);
+
+    // Naming Configuration
+    const [namingCard, setNamingCard] = useState('');
+    const [namingList, setNamingList] = useState('');
+    const [namingBoard, setNamingBoard] = useState('');
+    const [namingLabel, setNamingLabel] = useState('');
 
     // Slideshow Settings
     const [slideshowInterval, setSlideshowInterval] = useState(10);
@@ -425,6 +434,14 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
             setEnableStats(!!statsSettings.enabled);
             setStatsShowArchived(statsSettings.includeArchived !== undefined ? statsSettings.includeArchived : true);
             setStatsIncludedLists(statsSettings.includedLists || []);
+            setStatsCustomPrompt(statsSettings.customAIPrompt || '');
+
+            // Naming Configuration
+            const namingSettings = userSettings?.naming || {};
+            setNamingCard(namingSettings.card || '');
+            setNamingList(namingSettings.list || '');
+            setNamingBoard(namingSettings.board || '');
+            setNamingLabel(namingSettings.label || '');
 
             // Slideshow
             if (userSettings?.slideshowInterval) setSlideshowInterval(userSettings.slideshowInterval);
@@ -687,11 +704,15 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                 statistics: {
                     enabled: enableStats,
                     showArchived: statsShowArchived,
-                    includedLists: statsIncludedLists
+                    includedLists: statsIncludedLists,
+                    customAIPrompt: statsCustomPrompt
+                },
+                naming: {
+                    card: namingCard.trim() || undefined,
+                    list: namingList.trim() || undefined,
+                    board: namingBoard.trim() || undefined,
+                    label: namingLabel.trim() || undefined
                 }
-
-
-
             };
 
             const storedData = JSON.parse(localStorage.getItem('trelloUserData') || '{}');
@@ -784,6 +805,28 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
         } catch (e) {
             console.error("Failed to save task settings", e);
             alert("Failed to save task settings");
+        }
+    };
+
+    const handleImprovePrompt = async () => {
+        if (!statsCustomPrompt.trim()) return;
+        setIsImprovingPrompt(true);
+        try {
+            const res = await fetch('/api/improvePrompt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rawPrompt: statsCustomPrompt })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setStatsCustomPrompt(data.improvedPrompt);
+            } else {
+                alert(`Error improving prompt: ${data.error}`);
+            }
+        } catch (e) {
+            alert(`Error improving prompt: ${e.message}`);
+        } finally {
+            setIsImprovingPrompt(false);
         }
     };
 
@@ -1639,6 +1682,32 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                             </button>
                                         </div>
 
+                                        <div style={{ marginTop: '20px', padding: '15px', background: '#f0f4f8', borderRadius: '6px', border: '1px solid #cce' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                                                <Sparkles size={18} color="#0052cc" />
+                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                    <label style={{ fontWeight: 'bold', margin: 0, color: '#0052cc' }}>Custom AI Prompt (Optional)</label>
+                                                    <span style={{ marginLeft: '10px', fontSize: '0.7em', padding: '2px 6px', backgroundColor: '#0052cc', color: 'white', borderRadius: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>Beta</span>
+                                                </div>
+                                            </div>
+                                            <p style={{ fontSize: '0.9em', color: '#666', marginTop: '0', marginBottom: '10px' }}>Provide additional context or specific instructions to the AI when generating a summary for this board. This context will be added to the core system instructions.</p>
+                                            <textarea 
+                                                value={statsCustomPrompt} 
+                                                onChange={(e) => setStatsCustomPrompt(e.target.value)}
+                                                placeholder="E.g., Write the summary as a pirate..."
+                                                style={{ width: '100%', minHeight: '80px', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', resize: 'vertical' }}
+                                            />
+                                            <button 
+                                                className="button-secondary" 
+                                                onClick={handleImprovePrompt}
+                                                disabled={isImprovingPrompt || !statsCustomPrompt.trim()}
+                                                style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}
+                                            >
+                                                {isImprovingPrompt ? <Loader2 size={16} className="spin" /> : <Sparkles size={16} />}
+                                                {isImprovingPrompt ? 'Improving...' : 'Improve Prompt with AI'}
+                                            </button>
+                                        </div>
+
 
 
                                     </div>
@@ -1654,8 +1723,9 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                     activeTab === 'other' && (
                         <div className="tab-content">
                             {selectedBoard ? (
-                                <div className="admin-section" id="section-4">
-                                    <h3>Other Settings for {selectedBoard.name}</h3>
+                                <>
+                                    <div className="admin-section" id="section-4">
+                                        <h3>Other Settings for {selectedBoard.name}</h3>
                                     <p style={{ fontSize: '0.9em', color: '#666', marginTop: '-10px', marginBottom: '15px' }}>
                                         These settings are saved separately for each Trello board. Auto-refresh must be at least 15 seconds; recommended 30 seconds for live displays. The digital clock appears in the top-left corner of the screen and follows the local computer time format. Template Cards in Trello can be excluded from the count (recommended); completed cards can also be excluded.
                                     </p>
@@ -1734,6 +1804,60 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                         </div>
                                     </div>
                                 </div>
+                                
+                                <div className="admin-section" id="section-naming" style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+                                    <h3>Naming configuration</h3>
+                                    <p style={{ fontSize: '0.9em', color: '#666', marginTop: '-10px', marginBottom: '15px' }}>
+                                        Customize the terminology used across your Dashboard, Map, and Statistics views. By default, it will use "Card", "List", and "Board". Leave empty to use defaults.
+                                    </p>
+                                    
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <label style={{ fontWeight: 'bold' }}>"Card" is called...</label>
+                                            <input 
+                                                type="text" 
+                                                value={namingCard} 
+                                                onChange={e => setNamingCard(e.target.value)} 
+                                                placeholder="e.g. Task, Job, Ticket"
+                                                style={{ width: '250px', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginTop: '5px' }}
+                                            />
+                                        </div>
+                                        
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <label style={{ fontWeight: 'bold' }}>"List" is called...</label>
+                                            <input 
+                                                type="text" 
+                                                value={namingList} 
+                                                onChange={e => setNamingList(e.target.value)} 
+                                                placeholder="e.g. Phase, Stage, Status"
+                                                style={{ width: '250px', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginTop: '5px' }}
+                                            />
+                                        </div>
+                                        
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <label style={{ fontWeight: 'bold' }}>"Board" is called...</label>
+                                            <input 
+                                                type="text" 
+                                                value={namingBoard} 
+                                                onChange={e => setNamingBoard(e.target.value)} 
+                                                placeholder="e.g. Project, Sprint, Portfolio"
+                                                style={{ width: '250px', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginTop: '5px' }}
+                                            />
+                                        </div>
+                                        
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <label style={{ fontWeight: 'bold' }}>"Label" is called...</label>
+                                            <input 
+                                                type="text" 
+                                                value={namingLabel} 
+                                                onChange={e => setNamingLabel(e.target.value)} 
+                                                placeholder="e.g. Tag, Category, Group"
+                                                style={{ width: '250px', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginTop: '5px' }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                </>
                             ) : (
                                 <div style={{ marginTop: '20px', fontStyle: 'italic', color: '#666' }}>Select a board to configure settings</div>
                             )}
