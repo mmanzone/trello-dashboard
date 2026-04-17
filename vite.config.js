@@ -15,6 +15,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         help: resolve(__dirname, 'help.html'),
         privacy: resolve(__dirname, 'privacy.html'),
+        tour: resolve(__dirname, 'tour.html'),
       }
     }
   }

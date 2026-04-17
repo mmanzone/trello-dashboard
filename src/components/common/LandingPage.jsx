@@ -1,7 +1,7 @@
 import React from 'react';
 import { trelloAuth } from '../../api/trello';
 
-const LandingPage = () => {
+const LandingPage = ({ onOpenTour }) => {
     const handleLogin = (e) => {
         e.preventDefault();
         trelloAuth.login();
@@ -15,6 +15,11 @@ const LandingPage = () => {
                 <h1>Transform Your Trello Boards into Real-Time Operational Dashboards.</h1>
                 <p className="subtitle">From Kanban to Command Centre. Visualize your workload on a Wallboard or a Map.</p>
                 <a href="#login" className="cta-button" onClick={handleLogin}>Try Trellops Now!</a>
+                {onOpenTour && (
+                    <p style={{ marginTop: '12px' }}>
+                        <button onClick={onOpenTour} style={{ background: 'none', border: 'none', color: '#aaa', cursor: 'pointer', textDecoration: 'underline', fontSize: '0.9em' }}>Take a feature tour first →</button>
+                    </p>
+                )}
             </header>
 
             <section className="features">
@@ -65,7 +70,7 @@ const LandingPage = () => {
 
             <footer>
                 <button id="login-btn" onClick={handleLogin}>Login with Trello</button>
-                <p><a href="help.html">User Guide</a> | <a href="privacy.html">Privacy Disclaimer</a></p>
+                <p><a href="help.html">User Guide</a> | <a href="privacy.html">Privacy Disclaimer</a>{onOpenTour && <> | <button onClick={onOpenTour} style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', textDecoration: 'underline', fontSize: 'inherit', padding: 0 }}>Feature Tour</button></>}</p>
             </footer>
         </div>
     );

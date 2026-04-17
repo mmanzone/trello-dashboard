@@ -9,6 +9,9 @@ import SettingsScreen from './components/SettingsScreen';
 import MapView from './components/MapView';
 import TaskView from './components/TaskView';
 import StatisticsView from './components/StatisticsView';
+import TourPanel from './components/common/TourPanel';
+import TourWelcomeModal from './components/common/TourWelcomeModal';
+import { getTourStatus, isFirstTimeUser, setTourStatus } from './hooks/useTourStatus';
 import useWakeLock from './hooks/useWakeLock';
 
 const App = () => {
@@ -26,6 +29,10 @@ const App = () => {
 
     const [keepScreenOn, setKeepScreenOn] = useState(false);
     const { requestWakeLock, releaseWakeLock } = useWakeLock();
+
+    // Tour state
+    const [showTourWelcome, setShowTourWelcome] = useState(false);
+    const [showTourPanel, setShowTourPanel] = useState(false);
 
     // Wake Lock Effect
     useEffect(() => {
@@ -213,6 +220,11 @@ const App = () => {
                     console.error("Failed to load pending config", e);
                 }
             }
+            // Show welcome tour modal for first-time users
+            if (isFirstTimeUser()) {
+                setTourStatus('pending');
+                setShowTourWelcome(true);
+            }
         } catch (e) {
             console.error("Login validation failed:", e);
             setError("Failed to validate Trello session. Please log in again.");
@@ -289,181 +301,191 @@ const App = () => {
         );
     }
 
-    if (view === 'map') {
-        return (
-            <MapView
-                user={user}
-                settings={settings}
-                onClose={() => {
-                    setView('dashboard');
-                    window.history.pushState({}, '', '/dashboard');
-                }}
-                onShowSettings={() => {
-                    setPreviousView('map');
-                    setSettingsTab('map');
-                    setView('settings');
-                    window.history.pushState({}, '', '/settings');
-                }}
-                onLogout={handleLogout}
-                onShowTasks={() => {
-                    setPreviousView('map');
-                    setView('tasks');
-                    window.history.pushState({}, '', '/tasks');
-                }}
-                onShowDashboard={() => {
-                    setView('dashboard');
-                    window.history.pushState({}, '', '/dashboard');
-                }}
-                slideshowContent={slideshowActive ? slideshowView : null}
-                onStartSlideshow={handleStartSlideshow}
-                onStopSlideshow={slideshowActive ? handleStopSlideshow : null}
-                keepScreenOn={keepScreenOn}
-                onToggleScreenLock={() => setKeepScreenOn(!keepScreenOn)}
-            />
-        );
-    }
-
-    if (view === 'tasks') {
-        return (
-            <TaskView
-                user={user}
-                settings={settings}
-                onClose={() => {
-                    setView('dashboard');
-                    window.history.pushState({}, '', '/dashboard');
-                }}
-                onMainView={() => { // Alias for onClose/Dashboard
-                    setView('dashboard');
-                    window.history.pushState({}, '', '/dashboard');
-                }}
-                onShowSettings={() => {
-                    setPreviousView('tasks');
-                    setSettingsTab('tasks');
-                    setView('tasks-settings');
-                    window.history.pushState({}, '', '/tasks/settings');
-                }}
-                onShowMap={() => {
-                    setPreviousView('tasks');
-                    setView('map');
-                    window.history.pushState({}, '', '/map');
-                }}
-                onLogout={handleLogout}
-                onGoToStats={() => { setPreviousView('settings'); setView('stats'); }}
-            />
-        );
-    }
-
-    if (view === 'stats' && user) {
-        return (
-            <StatisticsView
-                user={user}
-                settings={settings}
-                onShowSettings={() => { setPreviousView('stats'); setView('settings'); setSettingsTab('statistics'); }}
-                onGoToDashboard={() => setView('dashboard')}
-                onLogout={handleLogout}
-            />
-        );
-    }
-
-    if (view === 'landing') {
-        return <LandingPage />;
-    }
-
-    if (view === 'dashboard') {
-        return (
-            <Dashboard
-                user={user}
-                settings={settings}
-                onShowSettings={() => {
-                    setPreviousView('dashboard');
-                    setSettingsTab('dashboard');
-                    setView('settings');
-                    window.history.pushState({}, '', '/settings');
-                }}
-                onLogout={handleLogout}
-                onShowTasks={() => {
-                    setPreviousView('dashboard');
-                    setView('tasks');
-                    window.history.pushState({}, '', '/tasks');
-                }}
-                onShowMap={() => {
-                    setPreviousView('dashboard');
-                    setView('map');
-                    window.history.pushState({}, '', '/map');
-                }}
-                slideshowContent={slideshowActive ? slideshowView : null}
-                onStartSlideshow={handleStartSlideshow}
-                onStopSlideshow={slideshowActive ? handleStopSlideshow : null}
-                keepScreenOn={keepScreenOn}
-                onToggleScreenLock={() => setKeepScreenOn(!keepScreenOn)}
-            />
-        );
-    }
-
-    if (view === 'settings') {
-        return (
-            <SettingsScreen
-                user={user}
-                initialTab={settingsTab}
-                onSave={handleSaveSettings}
-                onClose={() => {
-                    // Start strict redirection checks on logic
-                    if (settings?.boardId) {
-                        if (previousView === 'map') {
-                            setView('map');
-                            window.history.pushState({}, '', '/map');
-                        } else {
-                            setView('dashboard');
-                            window.history.pushState({}, '', '/dashboard');
-                        }
-                    } else {
-                        // No board configured -> Go to Landing or reload root
-                        window.location.href = '/';
-                    }
-                }}
-                onLogout={handleLogout}
-                importedConfig={importConfig}
-                onClearImportConfig={() => setImportConfig(null)}
-
-                viewMode="default"
-                onManageTasks={() => {
-                    setView('tasks-settings');
-                    window.history.pushState({}, '', '/tasks/settings');
-                }}
-                onGoToStats={() => {
-                    setPreviousView('settings');
-                    setView('stats');
-                    window.history.pushState({}, '', '/stats');
-                }}
-            />
-        );
-    }
-
-    if (view === 'tasks-settings') {
-        return (
-            <SettingsScreen
-                user={user}
-                initialTab="tasks"
-                onSave={handleSaveSettings}
-                onClose={() => {
-                    // Back to Tasks if enabled
-                    if (settings?.enableTaskView) {
-                        setView('tasks');
-                        window.history.pushState({}, '', '/tasks');
-                    } else if (settings?.boardId) {
+    const renderView = () => {
+        if (view === 'map') {
+            return (
+                <MapView
+                    user={user}
+                    settings={settings}
+                    onClose={() => {
                         setView('dashboard');
                         window.history.pushState({}, '', '/dashboard');
-                    } else {
-                        window.location.href = '/';
-                    }
-                }}
-                onLogout={handleLogout}
-                viewMode="tasks"
-            />
-        );
-    }
+                    }}
+                    onShowSettings={() => {
+                        setPreviousView('map');
+                        setSettingsTab('map');
+                        setView('settings');
+                        window.history.pushState({}, '', '/settings');
+                    }}
+                    onLogout={handleLogout}
+                    onShowTasks={() => {
+                        setPreviousView('map');
+                        setView('tasks');
+                        window.history.pushState({}, '', '/tasks');
+                    }}
+                    onShowDashboard={() => {
+                        setView('dashboard');
+                        window.history.pushState({}, '', '/dashboard');
+                    }}
+                    slideshowContent={slideshowActive ? slideshowView : null}
+                    onStartSlideshow={handleStartSlideshow}
+                    onStopSlideshow={slideshowActive ? handleStopSlideshow : null}
+                    keepScreenOn={keepScreenOn}
+                    onToggleScreenLock={() => setKeepScreenOn(!keepScreenOn)}
+                />
+            );
+        }
 
-    return <LandingPage />;
+        if (view === 'tasks') {
+            return (
+                <TaskView
+                    user={user}
+                    settings={settings}
+                    onClose={() => {
+                        setView('dashboard');
+                        window.history.pushState({}, '', '/dashboard');
+                    }}
+                    onMainView={() => {
+                        setView('dashboard');
+                        window.history.pushState({}, '', '/dashboard');
+                    }}
+                    onShowSettings={() => {
+                        setPreviousView('tasks');
+                        setSettingsTab('tasks');
+                        setView('tasks-settings');
+                        window.history.pushState({}, '', '/tasks/settings');
+                    }}
+                    onShowMap={() => {
+                        setPreviousView('tasks');
+                        setView('map');
+                        window.history.pushState({}, '', '/map');
+                    }}
+                    onLogout={handleLogout}
+                    onGoToStats={() => { setPreviousView('settings'); setView('stats'); }}
+                />
+            );
+        }
+
+        if (view === 'stats' && user) {
+            return (
+                <StatisticsView
+                    user={user}
+                    settings={settings}
+                    onShowSettings={() => { setPreviousView('stats'); setView('settings'); setSettingsTab('statistics'); }}
+                    onGoToDashboard={() => setView('dashboard')}
+                    onLogout={handleLogout}
+                />
+            );
+        }
+
+        if (view === 'dashboard') {
+            return (
+                <Dashboard
+                    user={user}
+                    settings={settings}
+                    onShowSettings={() => {
+                        setPreviousView('dashboard');
+                        setSettingsTab('dashboard');
+                        setView('settings');
+                        window.history.pushState({}, '', '/settings');
+                    }}
+                    onLogout={handleLogout}
+                    onShowTasks={() => {
+                        setPreviousView('dashboard');
+                        setView('tasks');
+                        window.history.pushState({}, '', '/tasks');
+                    }}
+                    onShowMap={() => {
+                        setPreviousView('dashboard');
+                        setView('map');
+                        window.history.pushState({}, '', '/map');
+                    }}
+                    slideshowContent={slideshowActive ? slideshowView : null}
+                    onStartSlideshow={handleStartSlideshow}
+                    onStopSlideshow={slideshowActive ? handleStopSlideshow : null}
+                    keepScreenOn={keepScreenOn}
+                    onToggleScreenLock={() => setKeepScreenOn(!keepScreenOn)}
+                />
+            );
+        }
+
+        if (view === 'settings') {
+            return (
+                <SettingsScreen
+                    user={user}
+                    initialTab={settingsTab}
+                    onSave={handleSaveSettings}
+                    onClose={() => {
+                        if (settings?.boardId) {
+                            if (previousView === 'map') {
+                                setView('map');
+                                window.history.pushState({}, '', '/map');
+                            } else {
+                                setView('dashboard');
+                                window.history.pushState({}, '', '/dashboard');
+                            }
+                        } else {
+                            window.location.href = '/';
+                        }
+                    }}
+                    onLogout={handleLogout}
+                    importedConfig={importConfig}
+                    onClearImportConfig={() => setImportConfig(null)}
+                    viewMode="default"
+                    onManageTasks={() => {
+                        setView('tasks-settings');
+                        window.history.pushState({}, '', '/tasks/settings');
+                    }}
+                    onGoToStats={() => {
+                        setPreviousView('settings');
+                        setView('stats');
+                        window.history.pushState({}, '', '/stats');
+                    }}
+                    onOpenTour={() => setShowTourPanel(true)}
+                />
+            );
+        }
+
+        if (view === 'tasks-settings') {
+            return (
+                <SettingsScreen
+                    user={user}
+                    initialTab="tasks"
+                    onSave={handleSaveSettings}
+                    onClose={() => {
+                        if (settings?.enableTaskView) {
+                            setView('tasks');
+                            window.history.pushState({}, '', '/tasks');
+                        } else if (settings?.boardId) {
+                            setView('dashboard');
+                            window.history.pushState({}, '', '/dashboard');
+                        } else {
+                            window.location.href = '/';
+                        }
+                    }}
+                    onLogout={handleLogout}
+                    viewMode="tasks"
+                />
+            );
+        }
+
+        // Fallback: landing
+        return <LandingPage onOpenTour={() => setShowTourPanel(true)} />;
+    };
+
+    return (
+        <>
+            {renderView()}
+            {showTourWelcome && (
+                <TourWelcomeModal
+                    onStartTour={() => { setShowTourWelcome(false); setShowTourPanel(true); }}
+                    onSkip={() => setShowTourWelcome(false)}
+                />
+            )}
+            {showTourPanel && <TourPanel onClose={() => setShowTourPanel(false)} />}
+        </>
+    );
 };
 
 export default App;
+
