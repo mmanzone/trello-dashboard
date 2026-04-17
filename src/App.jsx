@@ -9,9 +9,6 @@ import SettingsScreen from './components/SettingsScreen';
 import MapView from './components/MapView';
 import TaskView from './components/TaskView';
 import StatisticsView from './components/StatisticsView';
-import TourPanel from './components/common/TourPanel';
-import TourWelcomeModal from './components/common/TourWelcomeModal';
-import { getTourStatus, isFirstTimeUser, setTourStatus } from './hooks/useTourStatus';
 import useWakeLock from './hooks/useWakeLock';
 
 const App = () => {
@@ -29,10 +26,6 @@ const App = () => {
 
     const [keepScreenOn, setKeepScreenOn] = useState(false);
     const { requestWakeLock, releaseWakeLock } = useWakeLock();
-
-    // Tour state
-    const [showTourWelcome, setShowTourWelcome] = useState(false);
-    const [showTourPanel, setShowTourPanel] = useState(false);
 
     // Wake Lock Effect
     useEffect(() => {
@@ -219,11 +212,6 @@ const App = () => {
                 } catch (e) {
                     console.error("Failed to load pending config", e);
                 }
-            }
-            // Show welcome tour modal for first-time users
-            if (isFirstTimeUser()) {
-                setTourStatus('pending');
-                setShowTourWelcome(true);
             }
         } catch (e) {
             console.error("Login validation failed:", e);
@@ -441,7 +429,7 @@ const App = () => {
                         setView('stats');
                         window.history.pushState({}, '', '/stats');
                     }}
-                    onOpenTour={() => setShowTourPanel(true)}
+                    onOpenTour={undefined}
                 />
             );
         }
@@ -470,22 +458,14 @@ const App = () => {
         }
 
         // Fallback: landing
-        return <LandingPage onOpenTour={() => setShowTourPanel(true)} />;
+        return <LandingPage />;
     };
 
     return (
         <>
             {renderView()}
-            {showTourWelcome && (
-                <TourWelcomeModal
-                    onStartTour={() => { setShowTourWelcome(false); setShowTourPanel(true); }}
-                    onSkip={() => setShowTourWelcome(false)}
-                />
-            )}
-            {showTourPanel && <TourPanel onClose={() => setShowTourPanel(false)} />}
         </>
     );
 };
 
 export default App;
-

@@ -60,7 +60,7 @@ const ShareConfigModal = ({ config, onClose, boardName }) => {
     );
 };
 
-const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLogout, importedConfig = null, onClearImportConfig = () => { }, viewMode = 'default', onManageTasks, onGoToStats, onOpenTour }) => {
+const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLogout, importedConfig = null, onClearImportConfig = () => { }, viewMode = 'default', onManageTasks, onGoToStats }) => {
     // viewMode: 'default' (Board Settings) | 'tasks' (Task Settings Only)
 
     // --- State ---
@@ -2107,10 +2107,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
             </div>
             <div style={{ textAlign: 'center', marginBottom: '30px', fontSize: '0.85em', fontWeight: 'bold' }}>
                 <a href="/help.html" target="_blank" style={{ color: '#888888', textDecoration: 'underline', marginRight: '15px' }}>User Guide</a>
-                <a href="/privacy.html" target="_blank" style={{ color: '#888888', textDecoration: 'underline', marginRight: '15px' }}>Privacy Policy</a>
-                {onOpenTour && (
-                    <button onClick={onOpenTour} style={{ background: 'none', border: 'none', color: '#888888', cursor: 'pointer', textDecoration: 'underline', fontSize: 'inherit', padding: 0, fontWeight: 'bold' }}>Feature Tour</button>
-                )}
+                <a href="/privacy.html" target="_blank" style={{ color: '#888888', textDecoration: 'underline' }}>Privacy Policy</a>
             </div>
 
             {
