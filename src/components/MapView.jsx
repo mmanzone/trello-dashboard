@@ -1261,6 +1261,7 @@ const MapView = ({ user, settings, onClose, onShowSettings, onLogout, onShowTask
                             <>
                                 {/* Base Layer */}
                                 <select
+                                    id="basemap-selector"
                                     value={baseMap}
                                     onChange={e => setBaseMap(e.target.value)}
                                     className="time-filter-select"
@@ -1406,7 +1407,7 @@ const MapView = ({ user, settings, onClose, onShowSettings, onLogout, onShowTask
                                 <line x1="12" y1="22" x2="12" y2="18" />
                             </svg>
                         </div>
-                        <div className="map-sidebar">
+                        <div id="map-filter-panel" className="map-sidebar">
                             <MapFilters
                                 lists={lists} cards={cards} allLabels={boardLabels}
                                 visibleListIds={visibleListIds} onToggleList={handleToggleList}
@@ -1487,7 +1488,7 @@ const MapView = ({ user, settings, onClose, onShowSettings, onLogout, onShowTask
                                 )}
                             </div>
 
-                            <button className="button-secondary" onClick={() => onShowSettings('board')}>Settings</button>
+                            <button id="footer-settings-button" className="button-secondary" onClick={() => onShowSettings('board')}>Settings</button>
                             <button className="button-secondary" onClick={onLogout}>Logout</button>
                         </div>
                     )}

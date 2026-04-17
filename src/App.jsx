@@ -462,10 +462,28 @@ const App = () => {
         return <LandingPage />;
     };
 
+    // Tour navigation callbacks — passed to TourFloatingButton so driver.js
+    // can trigger cross-view transitions between tour phases.
+    const tourNavigateToMap = () => {
+        setPreviousView(view);
+        setView('map');
+        window.history.pushState({}, '', '/map');
+    };
+
+    const tourOpenSettings = () => {
+        setPreviousView(view);
+        setSettingsTab('dashboard');
+        setView('settings');
+        window.history.pushState({}, '', '/settings');
+    };
+
     return (
         <>
             {renderView()}
-            <TourFloatingButton />
+            <TourFloatingButton
+                navigateToMap={tourNavigateToMap}
+                openSettings={tourOpenSettings}
+            />
         </>
     );
 };

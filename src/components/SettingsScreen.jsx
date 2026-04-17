@@ -1024,6 +1024,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                             Dashboard View Settings
                         </button>
                         <button
+                            id="settings-tab-map"
                             className={`tab-button ${activeTab === 'map' ? 'active' : ''}`}
                             onClick={() => {
                                 setActiveTab('map');
@@ -1039,6 +1040,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                             Statistics Settings
                         </button>
                         <button
+                            id="settings-tab-other"
                             className={`tab-button ${activeTab === 'other' ? 'active' : ''}`}
                             onClick={() => setActiveTab('other')}
                         >

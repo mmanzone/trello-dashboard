@@ -3,25 +3,33 @@ import { startTour } from '../../hooks/useTour';
 
 /**
  * TourFloatingButton
- * 
+ *
  * A small floating "?" button fixed in the bottom-right corner of any view.
- * On click it triggers a driver.js tour showing only the steps whose target
- * elements exist in the current DOM.
+ * On click it triggers a multi-phase driver.js tour, automatically adapting
+ * to which view is currently active.
+ *
+ * Props:
+ *   navigateToMap  – callback to switch the app to the Map view
+ *   openSettings   – callback to open the Settings panel
  */
-const TourFloatingButton = () => {
+const TourFloatingButton = ({ navigateToMap, openSettings }) => {
     const [hovered, setHovered] = useState(false);
+
+    const handleClick = () => {
+        startTour({ navigateToMap, openSettings });
+    };
 
     return (
         <button
             id="tour-floating-button"
-            onClick={startTour}
+            onClick={handleClick}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
             title="Start Feature Tour"
             aria-label="Start Feature Tour"
             style={{
                 position: 'fixed',
-                bottom: '70px',     // sits above the footer
+                bottom: '70px',
                 right: '18px',
                 zIndex: 9000,
                 width: hovered ? 'auto' : '38px',
@@ -47,7 +55,6 @@ const TourFloatingButton = () => {
                 overflow: 'hidden',
             }}
         >
-            {/* Question-mark icon */}
             <svg
                 width="16"
                 height="16"
