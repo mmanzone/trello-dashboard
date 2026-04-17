@@ -9,6 +9,7 @@ import SettingsScreen from './components/SettingsScreen';
 import MapView from './components/MapView';
 import TaskView from './components/TaskView';
 import StatisticsView from './components/StatisticsView';
+import TourFloatingButton from './components/common/TourFloatingButton';
 import useWakeLock from './hooks/useWakeLock';
 
 const App = () => {
@@ -464,6 +465,7 @@ const App = () => {
     return (
         <>
             {renderView()}
+            <TourFloatingButton />
         </>
     );
 };

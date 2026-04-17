@@ -380,7 +380,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                                 </select>
 
                                 {settings?.statistics?.enabled && (
-                                    <button className="button-secondary" onClick={onGoToStats || (() => window.open('/stats', '_self'))} style={{ marginLeft: '10px', height: '34px', padding: '0 15px', display: 'flex', alignItems: 'center' }}>
+                                    <button id="nav-stats-button" className="button-secondary" onClick={onGoToStats || (() => window.open('/stats', '_self'))} style={{ marginLeft: '10px', height: '34px', padding: '0 15px', display: 'flex', alignItems: 'center' }}>
                                         Stats
                                     </button>
                                 )}
@@ -619,7 +619,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                             {enableMapView && (
                                 <div style={{ position: 'relative' }}>
                                     <div style={{ display: 'flex' }}>
-                                        <button className="button-secondary" onClick={onShowMap || (() => window.open('/map', '_blank'))}>
+                                        <button id="nav-map-button" className="button-secondary" onClick={onShowMap || (() => window.open('/map', '_blank'))}>
                                             Map View
                                         </button>
                                         <button className="button-secondary dropdown-arrow" style={{ marginLeft: '-1px', borderLeft: 'none', padding: '0 5px' }} onClick={() => setShowMapDropdown(!showMapDropdown)}>
@@ -655,7 +655,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                                 </div>
                             )}
 
-                            <button className="button-secondary" onClick={onShowSettings}>Settings</button>
+                            <button id="footer-settings-button" className="button-secondary" onClick={onShowSettings}>Settings</button>
                             <button className="button-secondary" onClick={onLogout}>Log Out</button>
                         </div>
                     )}

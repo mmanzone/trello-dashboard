@@ -972,6 +972,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                         <p style={{ fontSize: '0.9em', color: '#666', marginTop: '-10px' }}>
                             Boards are pulled directly from your Trello account, across all workspaces.
                         </p>
+                        <div id="board-selection-container">
                         <select value={selectedBoardId} onChange={handleBoardChange} className="board-select">
                             <option value="">-- Choose a Board --</option>
                             {(() => {
@@ -1011,6 +1012,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                 );
                             })()}
                         </select>
+                        </div>
                     </div>
 
                     {/* TABS HEADER */}
@@ -1125,7 +1127,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
 
                                             <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', marginTop: '15px' }}>
                                                 {/* UNASSIGNED */}
-                                                <div style={{ flex: 1, background: '#f8f9fa', padding: '10px', borderRadius: '6px', border: '1px solid #dee2e6' }}>
+                                                <div id="unassigned-lists-container" style={{ flex: 1, background: '#f8f9fa', padding: '10px', borderRadius: '6px', border: '1px solid #dee2e6' }}>
                                                     <h4>Available Lists</h4>
                                                     <Droppable droppableId="unassigned" type="LIST">
                                                         {(provided) => (
