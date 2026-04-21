@@ -271,41 +271,59 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
 
         // 1. Pre-populate board selection
         if (config.boardId) {
-            // Even if we don't 'find' the board in accessible boards (user might need login or permissions),
-            // we set the ID so 'SettingsScreen' attempts to show it or fetch it.
-            // This satisfies "pre-populate... including board name".
-            // The Board Name is visually handled by 'selectedBoard.name'. 
-            // If the board isn't in 'boards', selectedBoard is undefined, so we won't see the name in the header immediately unless we mock it or fetch succeeds.
-
             const existingBoard = boards.find(b => b.id === config.boardId);
             if (!existingBoard && config.boardName) {
-                // Optional: Inject a placeholder if disjoint? 
-                // For now, standard logic: set ID, fetch data.
+                // Board not yet in list — fetch it
             }
             setSelectedBoardId(config.boardId);
             fetchBoardData(config.boardId);
         }
 
-        // 2. Apply Settings
+        // 2. Dashboard layout
         if (config.blocks) setBlocks(config.blocks);
         if (config.listColors) setListColors(config.listColors);
-        if (config.markerRules) setMarkerRules(config.markerRules);
+
+        // 3. Other board settings
         if (config.refreshValue) setRefreshValue(config.refreshValue);
         if (config.refreshUnit) setRefreshUnit(config.refreshUnit);
         if (config.showClock !== undefined) setShowClock(config.showClock);
         if (config.ignoreTemplateCards !== undefined) setIgnoreTemplateCards(config.ignoreTemplateCards);
         if (config.ignoreCompletedCards !== undefined) setIgnoreCompletedCards(config.ignoreCompletedCards);
         if (config.ignoreNoDescCards !== undefined) setIgnoreNoDescCards(config.ignoreNoDescCards);
+        if (config.slideshowInterval !== undefined) setSlideshowInterval(config.slideshowInterval);
+
+        // 4. Map settings
         if (config.enableMapView !== undefined) setEnableMapView(config.enableMapView);
         if (config.mapGeocodeMode) setMapGeocodeMode(config.mapGeocodeMode);
-        if (config.mapGeocodeMode) setMapGeocodeMode(config.mapGeocodeMode);
+        if (config.updateTrelloCoordinates !== undefined) setUpdateTrelloCoordinates(config.updateTrelloCoordinates);
         if (config.enableCardMove !== undefined) setEnableCardMove(config.enableCardMove);
         if (config.enableStreetView !== undefined) setEnableStreetView(config.enableStreetView);
-        if (config.updateTrelloCoordinates !== undefined) setUpdateTrelloCoordinates(config.updateTrelloCoordinates);
+        if (config.enableHomeLocation !== undefined) setEnableHomeLocation(config.enableHomeLocation);
+        if (config.homeAddress !== undefined) setHomeAddress(config.homeAddress);
+        if (config.homeCoordinates !== undefined) setHomeCoordinates(config.homeCoordinates);
+        if (config.homeIcon !== undefined) setHomeIcon(config.homeIcon);
+        if (config.markerRules) setMarkerRules(config.markerRules);
+
+        // 5. Statistics settings (nested object)
+        if (config.statistics) {
+            if (config.statistics.enabled !== undefined) setEnableStats(config.statistics.enabled);
+            if (config.statistics.showArchived !== undefined) setStatsShowArchived(config.statistics.showArchived);
+            if (config.statistics.includedLists !== undefined) setStatsIncludedLists(config.statistics.includedLists);
+            if (config.statistics.customAIPrompt !== undefined) setStatsCustomPrompt(config.statistics.customAIPrompt);
+        }
+
+        // 6. Naming / terminology
+        if (config.naming) {
+            if (config.naming.card !== undefined) setNamingCard(config.naming.card || '');
+            if (config.naming.list !== undefined) setNamingList(config.naming.list || '');
+            if (config.naming.board !== undefined) setNamingBoard(config.naming.board || '');
+            if (config.naming.label !== undefined) setNamingLabel(config.naming.label || '');
+        }
+
+        // 7. Task view
         if (config.enableTaskView !== undefined) setEnableTaskView(config.enableTaskView);
         if (config.taskViewWorkspaces !== undefined) setTaskViewWorkspaces(config.taskViewWorkspaces);
         if (config.taskViewRefreshInterval !== undefined) setTaskViewRefreshInterval(config.taskViewRefreshInterval);
-
 
         // Clear pending state
         setPendingImport(null);
