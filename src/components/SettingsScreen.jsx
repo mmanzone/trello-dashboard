@@ -840,29 +840,58 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
 
     const getConfigObject = () => {
         if (!selectedBoardId) return null;
-        // Try to find name in boards list
         const boardName = boards.find(b => b.id === selectedBoardId)?.name;
 
         return {
+            // Identity
             boardId: selectedBoardId,
-            boardName: boardName, // Include name
+            boardName,
+
+            // Dashboard layout
             blocks,
             listColors,
-            markerRules,
+
+            // Other board settings
             refreshValue,
             refreshUnit,
             showClock,
             ignoreTemplateCards,
             ignoreCompletedCards,
             ignoreNoDescCards,
+            slideshowInterval,
+
+            // Map settings
             enableMapView,
             mapGeocodeMode,
+            updateTrelloCoordinates,
             enableCardMove,
             enableStreetView,
+            enableHomeLocation,
+            homeAddress,
+            homeCoordinates,
+            homeIcon,
+            markerRules,
+
+            // Statistics settings
+            statistics: {
+                enabled: enableStats,
+                showArchived: statsShowArchived,
+                includedLists: statsIncludedLists,
+                customAIPrompt: statsCustomPrompt,
+            },
+
+            // Naming / terminology
+            naming: {
+                card: namingCard.trim() || undefined,
+                list: namingList.trim() || undefined,
+                board: namingBoard.trim() || undefined,
+                label: namingLabel.trim() || undefined,
+            },
+
+            // Task view
             enableTaskView,
             taskViewWorkspaces,
-            taskViewRefreshInterval
-
+            taskViewRefreshInterval,
         };
     };
 
@@ -924,13 +953,40 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                 if (config.ignoreTemplateCards !== undefined) setIgnoreTemplateCards(config.ignoreTemplateCards);
                 if (config.ignoreCompletedCards !== undefined) setIgnoreCompletedCards(config.ignoreCompletedCards);
                 if (config.ignoreNoDescCards !== undefined) setIgnoreNoDescCards(config.ignoreNoDescCards);
+                if (config.slideshowInterval !== undefined) setSlideshowInterval(config.slideshowInterval);
+
+                // Map settings
                 if (config.enableMapView !== undefined) setEnableMapView(config.enableMapView);
                 if (config.mapGeocodeMode) setMapGeocodeMode(config.mapGeocodeMode);
+                if (config.updateTrelloCoordinates !== undefined) setUpdateTrelloCoordinates(config.updateTrelloCoordinates);
                 if (config.enableCardMove !== undefined) setEnableCardMove(config.enableCardMove);
                 if (config.enableStreetView !== undefined) setEnableStreetView(config.enableStreetView);
+                if (config.enableHomeLocation !== undefined) setEnableHomeLocation(config.enableHomeLocation);
+                if (config.homeAddress !== undefined) setHomeAddress(config.homeAddress);
+                if (config.homeCoordinates !== undefined) setHomeCoordinates(config.homeCoordinates);
+                if (config.homeIcon !== undefined) setHomeIcon(config.homeIcon);
+
+                // Statistics settings (nested object)
+                if (config.statistics) {
+                    if (config.statistics.enabled !== undefined) setEnableStats(config.statistics.enabled);
+                    if (config.statistics.showArchived !== undefined) setStatsShowArchived(config.statistics.showArchived);
+                    if (config.statistics.includedLists !== undefined) setStatsIncludedLists(config.statistics.includedLists);
+                    if (config.statistics.customAIPrompt !== undefined) setStatsCustomPrompt(config.statistics.customAIPrompt);
+                }
+
+                // Naming / terminology
+                if (config.naming) {
+                    if (config.naming.card !== undefined) setNamingCard(config.naming.card || '');
+                    if (config.naming.list !== undefined) setNamingList(config.naming.list || '');
+                    if (config.naming.board !== undefined) setNamingBoard(config.naming.board || '');
+                    if (config.naming.label !== undefined) setNamingLabel(config.naming.label || '');
+                }
+
+                // Task view
                 if (config.enableTaskView !== undefined) setEnableTaskView(config.enableTaskView);
                 if (config.taskViewWorkspaces !== undefined) setTaskViewWorkspaces(config.taskViewWorkspaces);
                 if (config.taskViewRefreshInterval !== undefined) setTaskViewRefreshInterval(config.taskViewRefreshInterval);
+
                 alert("Configuration imported! Click Save to persist changes.");
 
             } catch (err) {
