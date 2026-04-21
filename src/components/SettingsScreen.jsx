@@ -840,29 +840,58 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
 
     const getConfigObject = () => {
         if (!selectedBoardId) return null;
-        // Try to find name in boards list
         const boardName = boards.find(b => b.id === selectedBoardId)?.name;
 
         return {
+            // Identity
             boardId: selectedBoardId,
-            boardName: boardName, // Include name
+            boardName,
+
+            // Dashboard layout
             blocks,
             listColors,
-            markerRules,
+
+            // Other board settings
             refreshValue,
             refreshUnit,
             showClock,
             ignoreTemplateCards,
             ignoreCompletedCards,
             ignoreNoDescCards,
+            slideshowInterval,
+
+            // Map settings
             enableMapView,
             mapGeocodeMode,
+            updateTrelloCoordinates,
             enableCardMove,
             enableStreetView,
+            enableHomeLocation,
+            homeAddress,
+            homeCoordinates,
+            homeIcon,
+            markerRules,
+
+            // Statistics settings
+            statistics: {
+                enabled: enableStats,
+                showArchived: statsShowArchived,
+                includedLists: statsIncludedLists,
+                customAIPrompt: statsCustomPrompt,
+            },
+
+            // Naming / terminology
+            naming: {
+                card: namingCard.trim() || undefined,
+                list: namingList.trim() || undefined,
+                board: namingBoard.trim() || undefined,
+                label: namingLabel.trim() || undefined,
+            },
+
+            // Task view
             enableTaskView,
             taskViewWorkspaces,
-            taskViewRefreshInterval
-
+            taskViewRefreshInterval,
         };
     };
 
@@ -924,13 +953,40 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                 if (config.ignoreTemplateCards !== undefined) setIgnoreTemplateCards(config.ignoreTemplateCards);
                 if (config.ignoreCompletedCards !== undefined) setIgnoreCompletedCards(config.ignoreCompletedCards);
                 if (config.ignoreNoDescCards !== undefined) setIgnoreNoDescCards(config.ignoreNoDescCards);
+                if (config.slideshowInterval !== undefined) setSlideshowInterval(config.slideshowInterval);
+
+                // Map settings
                 if (config.enableMapView !== undefined) setEnableMapView(config.enableMapView);
                 if (config.mapGeocodeMode) setMapGeocodeMode(config.mapGeocodeMode);
+                if (config.updateTrelloCoordinates !== undefined) setUpdateTrelloCoordinates(config.updateTrelloCoordinates);
                 if (config.enableCardMove !== undefined) setEnableCardMove(config.enableCardMove);
                 if (config.enableStreetView !== undefined) setEnableStreetView(config.enableStreetView);
+                if (config.enableHomeLocation !== undefined) setEnableHomeLocation(config.enableHomeLocation);
+                if (config.homeAddress !== undefined) setHomeAddress(config.homeAddress);
+                if (config.homeCoordinates !== undefined) setHomeCoordinates(config.homeCoordinates);
+                if (config.homeIcon !== undefined) setHomeIcon(config.homeIcon);
+
+                // Statistics settings (nested object)
+                if (config.statistics) {
+                    if (config.statistics.enabled !== undefined) setEnableStats(config.statistics.enabled);
+                    if (config.statistics.showArchived !== undefined) setStatsShowArchived(config.statistics.showArchived);
+                    if (config.statistics.includedLists !== undefined) setStatsIncludedLists(config.statistics.includedLists);
+                    if (config.statistics.customAIPrompt !== undefined) setStatsCustomPrompt(config.statistics.customAIPrompt);
+                }
+
+                // Naming / terminology
+                if (config.naming) {
+                    if (config.naming.card !== undefined) setNamingCard(config.naming.card || '');
+                    if (config.naming.list !== undefined) setNamingList(config.naming.list || '');
+                    if (config.naming.board !== undefined) setNamingBoard(config.naming.board || '');
+                    if (config.naming.label !== undefined) setNamingLabel(config.naming.label || '');
+                }
+
+                // Task view
                 if (config.enableTaskView !== undefined) setEnableTaskView(config.enableTaskView);
                 if (config.taskViewWorkspaces !== undefined) setTaskViewWorkspaces(config.taskViewWorkspaces);
                 if (config.taskViewRefreshInterval !== undefined) setTaskViewRefreshInterval(config.taskViewRefreshInterval);
+
                 alert("Configuration imported! Click Save to persist changes.");
 
             } catch (err) {
@@ -972,6 +1028,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                         <p style={{ fontSize: '0.9em', color: '#666', marginTop: '-10px' }}>
                             Boards are pulled directly from your Trello account, across all workspaces.
                         </p>
+                        <div id="board-selection-container">
                         <select value={selectedBoardId} onChange={handleBoardChange} className="board-select">
                             <option value="">-- Choose a Board --</option>
                             {(() => {
@@ -1011,6 +1068,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                 );
                             })()}
                         </select>
+                        </div>
                     </div>
 
                     {/* TABS HEADER */}
@@ -1022,6 +1080,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                             Dashboard View Settings
                         </button>
                         <button
+                            id="settings-tab-map"
                             className={`tab-button ${activeTab === 'map' ? 'active' : ''}`}
                             onClick={() => {
                                 setActiveTab('map');
@@ -1037,6 +1096,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                             Statistics Settings
                         </button>
                         <button
+                            id="settings-tab-other"
                             className={`tab-button ${activeTab === 'other' ? 'active' : ''}`}
                             onClick={() => setActiveTab('other')}
                         >
@@ -1125,7 +1185,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
 
                                             <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', marginTop: '15px' }}>
                                                 {/* UNASSIGNED */}
-                                                <div style={{ flex: 1, background: '#f8f9fa', padding: '10px', borderRadius: '6px', border: '1px solid #dee2e6' }}>
+                                                <div id="unassigned-lists-container" style={{ flex: 1, background: '#f8f9fa', padding: '10px', borderRadius: '6px', border: '1px solid #dee2e6' }}>
                                                     <h4>Available Lists</h4>
                                                     <Droppable droppableId="unassigned" type="LIST">
                                                         {(provided) => (
@@ -1253,7 +1313,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                 <p style={{ fontSize: '0.9em', color: '#666', marginTop: '-10px', marginBottom: '15px' }}>
                                     Map settings are saved per-board. Choose whether Map View is enabled and how geocoding should behave for cards on this board.
                                 </p>
-                                <div className="settings-row" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setEnableMapView(!enableMapView)}>
+                                <div id="map-enable-toggle" className="settings-row" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setEnableMapView(!enableMapView)}>
                                     <ToggleSwitch checked={enableMapView} onChange={e => setEnableMapView(e.target.checked)} />
                                     <span>Enable Map View</span>
                                 </div>
@@ -1345,7 +1405,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                         <p style={{ fontSize: '0.9em', color: '#666', marginTop: '-10px', marginBottom: '15px' }}>
                                             Choose which blocks appear on the map and customize their markers.
                                         </p>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '20px' }}>
+                                        <div id="map-block-options" style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '20px' }}>
                                             {blocks.map(block => (
                                                 <div key={block.id} style={{ background: '#f8f9fa', padding: '10px', borderRadius: '6px', border: '1px solid #dee2e6' }}>
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1368,7 +1428,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                             ))}
                                         </div>
 
-                                        <div className="admin-section" style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+                                        <div id="map-marker-rules" className="admin-section" style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
                                             <h3>Marker Variants</h3>
                                             <p style={{ fontSize: '0.9em', color: '#666', marginTop: '-10px', marginBottom: '15px' }}>
                                                 Choose alternative display options for cards based on their Trello label value. You can choose to display a marker with a different colour or icon. In case of conflicts, the rule higher in the list will be applied.
@@ -1601,7 +1661,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                     Configure the historical data analysis view.
                                 </p>
 
-                                <div className="settings-row" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setEnableStats(!enableStats)}>
+                                <div id="stats-enable-toggle" className="settings-row" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setEnableStats(!enableStats)}>
                                     <ToggleSwitch checked={enableStats} onChange={e => setEnableStats(e.target.checked)} />
                                     <span>Enable Statistics View</span>
                                 </div>
@@ -1613,7 +1673,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                             <span>Show output for Archived cards</span>
                                         </div>
 
-                                        <div style={{ marginBottom: '15px' }}>
+                                        <div id="stats-included-lists" style={{ marginBottom: '15px' }}>
                                             <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>Lists to include in reports:</label>
                                             <p style={{ fontSize: '0.9em', color: '#666', marginTop: '-5px' }}>Uncheck to exclude specific lists (e.g. "Done" or "Backlog") from statistics.</p>
                                             <div style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid #ddd', padding: '10px', borderRadius: '4px', background: 'white' }}>
@@ -1692,6 +1752,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                             </div>
                                             <p style={{ fontSize: '0.9em', color: '#666', marginTop: '0', marginBottom: '10px' }}>Provide additional context or specific instructions to the AI when generating a summary for this board. This context will be added to the core system instructions.</p>
                                             <textarea 
+                                                id="stats-ai-prompt"
                                                 value={statsCustomPrompt} 
                                                 onChange={(e) => setStatsCustomPrompt(e.target.value)}
                                                 placeholder="E.g., Write the summary as a pirate..."
