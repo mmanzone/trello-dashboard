@@ -1257,7 +1257,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                 <p style={{ fontSize: '0.9em', color: '#666', marginTop: '-10px', marginBottom: '15px' }}>
                                     Map settings are saved per-board. Choose whether Map View is enabled and how geocoding should behave for cards on this board.
                                 </p>
-                                <div className="settings-row" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setEnableMapView(!enableMapView)}>
+                                <div id="map-enable-toggle" className="settings-row" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setEnableMapView(!enableMapView)}>
                                     <ToggleSwitch checked={enableMapView} onChange={e => setEnableMapView(e.target.checked)} />
                                     <span>Enable Map View</span>
                                 </div>
@@ -1349,7 +1349,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                         <p style={{ fontSize: '0.9em', color: '#666', marginTop: '-10px', marginBottom: '15px' }}>
                                             Choose which blocks appear on the map and customize their markers.
                                         </p>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '20px' }}>
+                                        <div id="map-block-options" style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '20px' }}>
                                             {blocks.map(block => (
                                                 <div key={block.id} style={{ background: '#f8f9fa', padding: '10px', borderRadius: '6px', border: '1px solid #dee2e6' }}>
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1372,7 +1372,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                             ))}
                                         </div>
 
-                                        <div className="admin-section" style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+                                        <div id="map-marker-rules" className="admin-section" style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
                                             <h3>Marker Variants</h3>
                                             <p style={{ fontSize: '0.9em', color: '#666', marginTop: '-10px', marginBottom: '15px' }}>
                                                 Choose alternative display options for cards based on their Trello label value. You can choose to display a marker with a different colour or icon. In case of conflicts, the rule higher in the list will be applied.
@@ -1605,7 +1605,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                     Configure the historical data analysis view.
                                 </p>
 
-                                <div className="settings-row" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setEnableStats(!enableStats)}>
+                                <div id="stats-enable-toggle" className="settings-row" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setEnableStats(!enableStats)}>
                                     <ToggleSwitch checked={enableStats} onChange={e => setEnableStats(e.target.checked)} />
                                     <span>Enable Statistics View</span>
                                 </div>
@@ -1617,7 +1617,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                             <span>Show output for Archived cards</span>
                                         </div>
 
-                                        <div style={{ marginBottom: '15px' }}>
+                                        <div id="stats-included-lists" style={{ marginBottom: '15px' }}>
                                             <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>Lists to include in reports:</label>
                                             <p style={{ fontSize: '0.9em', color: '#666', marginTop: '-5px' }}>Uncheck to exclude specific lists (e.g. "Done" or "Backlog") from statistics.</p>
                                             <div style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid #ddd', padding: '10px', borderRadius: '4px', background: 'white' }}>
@@ -1696,6 +1696,7 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                             </div>
                                             <p style={{ fontSize: '0.9em', color: '#666', marginTop: '0', marginBottom: '10px' }}>Provide additional context or specific instructions to the AI when generating a summary for this board. This context will be added to the core system instructions.</p>
                                             <textarea 
+                                                id="stats-ai-prompt"
                                                 value={statsCustomPrompt} 
                                                 onChange={(e) => setStatsCustomPrompt(e.target.value)}
                                                 placeholder="E.g., Write the summary as a pirate..."

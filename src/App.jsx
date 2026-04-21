@@ -9,7 +9,6 @@ import SettingsScreen from './components/SettingsScreen';
 import MapView from './components/MapView';
 import TaskView from './components/TaskView';
 import StatisticsView from './components/StatisticsView';
-import TourFloatingButton from './components/common/TourFloatingButton';
 import useWakeLock from './hooks/useWakeLock';
 
 const App = () => {
@@ -462,28 +461,9 @@ const App = () => {
         return <LandingPage />;
     };
 
-    // Tour navigation callbacks — passed to TourFloatingButton so driver.js
-    // can trigger cross-view transitions between tour phases.
-    const tourNavigateToMap = () => {
-        setPreviousView(view);
-        setView('map');
-        window.history.pushState({}, '', '/map');
-    };
-
-    const tourOpenSettings = () => {
-        setPreviousView(view);
-        setSettingsTab('dashboard');
-        setView('settings');
-        window.history.pushState({}, '', '/settings');
-    };
-
     return (
         <>
             {renderView()}
-            <TourFloatingButton
-                navigateToMap={tourNavigateToMap}
-                openSettings={tourOpenSettings}
-            />
         </>
     );
 };

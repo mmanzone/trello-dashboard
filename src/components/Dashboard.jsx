@@ -373,7 +373,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                                 />
 
                                 {/* Time Filter */}
-                                <select className="time-filter-select" value={timeFilter} onChange={e => setTimeFilter(e.target.value)} style={{ marginLeft: '10px' }}>
+                                <select id="dashboard-time-filter" className="time-filter-select" value={timeFilter} onChange={e => setTimeFilter(e.target.value)} style={{ marginLeft: '10px' }}>
                                     {Object.keys(TIME_FILTERS).map(key => (
                                         <option key={key} value={key}>{TIME_FILTERS[key].label}</option>
                                     ))}

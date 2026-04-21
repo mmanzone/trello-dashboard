@@ -571,7 +571,7 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                             labelLogic={labelLogic}
                             onLabelLogicChange={setLabelLogic}
                         />
-                        <select className="time-filter-select" value={createdFilter} onChange={e => {
+                        <select id="stats-period-filter" className="time-filter-select" value={createdFilter} onChange={e => {
                             const val = e.target.value;
                             setCreatedFilter(val);
                             if (val === 'custom') setShowCustomRange(true);
@@ -701,6 +701,7 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                                         Create your custom prompt
                                     </button>
                                     <button 
+                                        id="stats-generate-summary"
                                         className="button-primary" 
                                         onClick={handleGenerateSummary} 
                                         disabled={isGeneratingSummary}
