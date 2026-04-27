@@ -4,7 +4,7 @@ import { useDarkMode } from '../../context/DarkModeContext';
 import { getLabelTextColor } from '../../utils/helpers';
 import { getTerminology } from '../../utils/terminology';
 
-const CardDetailsModal = ({ listId, listName, color, token, onClose, sectionsLayout, ignoreTemplateCards, ignoreNoDescCards, settings }) => {
+const CardDetailsModal = ({ listId, listName, color, token, onClose, sectionsLayout, ignoreTemplateCards, ignoreNoDescCards, enableIgnoreKeywords, ignoreKeywords, settings }) => {
     const [cards, setCards] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -52,7 +52,10 @@ const CardDetailsModal = ({ listId, listName, color, token, onClose, sectionsLay
                 {!loading && cards.length > 0 && (
                     <div>
                         {cards.map(card => {
-                            const isIgnored = ignoreNoDescCards && (!card.desc || !card.desc.trim());
+                            const keywords = enableIgnoreKeywords && ignoreKeywords ? ignoreKeywords.split(',').map(k => k.trim().toLowerCase()).filter(k => k) : [];
+                            const isIgnoredByKeyword = keywords.length > 0 && keywords.some(k => card.name.toLowerCase().includes(k));
+                            const isIgnoredByDesc = ignoreNoDescCards && (!card.desc || !card.desc.trim());
+                            const isIgnored = isIgnoredByDesc || isIgnoredByKeyword;
                             const itemStyle = isIgnored ? { color: 'lightgrey', fontStyle: 'italic' } : {};
 
                             return (
@@ -79,7 +82,9 @@ const CardDetailsModal = ({ listId, listName, color, token, onClose, sectionsLay
                                         title={card.name}
                                         style={itemStyle}
                                     >
-                                        {card.name} {isIgnored && <span style={{ fontSize: '0.8em' }}> (no description)</span>}
+                                        {card.name} 
+                                        {isIgnoredByDesc && !isIgnoredByKeyword && <span style={{ fontSize: '0.8em' }}> (no description)</span>}
+                                        {isIgnoredByKeyword && <span style={{ fontSize: '0.8em' }}> (ignored)</span>}
                                     </a>
                                 </div>
                             );

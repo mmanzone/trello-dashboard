@@ -483,6 +483,8 @@ const MapView = ({ user, settings, onClose, onShowSettings, onLogout, onShowTask
     const ignoreTemplateCards = localStorage.getItem(STORAGE_KEYS.IGNORE_TEMPLATE_CARDS + boardId) !== 'false';
     const ignoreCompletedCards = localStorage.getItem(STORAGE_KEYS.IGNORE_COMPLETED_CARDS + boardId) === 'true';
     const ignoreNoDescCards = localStorage.getItem(STORAGE_KEYS.IGNORE_NO_DESC_CARDS + boardId) === 'true';
+    const enableIgnoreKeywords = localStorage.getItem(STORAGE_KEYS.ENABLE_IGNORE_KEYWORDS + boardId) === 'true';
+    const ignoreKeywords = localStorage.getItem(STORAGE_KEYS.IGNORE_KEYWORDS + boardId) || '';
 
     const updateTrelloCoordinates = localStorage.getItem('updateTrelloCoordinates_' + boardId) === 'true';
     const enableCardMove = localStorage.getItem('enableCardMove_' + boardId) === 'true';
@@ -683,6 +685,8 @@ const MapView = ({ user, settings, onClose, onShowSettings, onLogout, onShowTask
             const cache = JSON.parse(localStorage.getItem(cacheKey) || '{}');
             const ignoreCompletedCards = localStorage.getItem(STORAGE_KEYS.IGNORE_COMPLETED_CARDS + boardId) === 'true';
             const ignoreNoDescCards = localStorage.getItem('IGNORE_NO_DESC_CARDS_' + boardId) === 'true';
+            const enableIgnoreKeywords = localStorage.getItem(STORAGE_KEYS.ENABLE_IGNORE_KEYWORDS + boardId) === 'true';
+            const ignoreKeywords = localStorage.getItem(STORAGE_KEYS.IGNORE_KEYWORDS + boardId) || '';
 
             // Calculate Absolute First Card (Min Pos) Per List - BEFORE filtering
             const absoluteMinPosByList = {};
@@ -697,6 +701,11 @@ const MapView = ({ user, settings, onClose, onShowSettings, onLogout, onShowTask
                 if (ignoreTemplateCards && c.isTemplate) return false;
                 if (ignoreCompletedCards && c.dueComplete) return false;
                 if (ignoreNoDescCards && (!c.desc || !c.desc.trim())) return false; // Basic catch, specific logic in geocoding
+                
+                if (enableIgnoreKeywords && ignoreKeywords) {
+                    const keywords = ignoreKeywords.split(',').map(k => k.trim().toLowerCase()).filter(k => k);
+                    if (keywords.length > 0 && keywords.some(k => c.name.toLowerCase().includes(k))) return false;
+                }
                 // Note: We don't filter `ignoredCards` here because we need them in the `cards` state to manage them (un-ignore?) 
                 // OR we filter them here so they don't show up at all?
                 // Request says "ignore for decoding... do not show on map". 
@@ -1042,6 +1051,14 @@ const MapView = ({ user, settings, onClose, onShowSettings, onLogout, onShowTask
             if (ignoreTemplateCards && c.isTemplate) { droppedByGlobal++; return false; }
             if (ignoreCompletedCards && c.dueComplete) { droppedByGlobal++; return false; }
             if (ignoreNoDescCards && (!c.desc || !c.desc.trim())) { droppedByGlobal++; return false; }
+
+            if (enableIgnoreKeywords && ignoreKeywords) {
+                const keywords = ignoreKeywords.split(',').map(k => k.trim().toLowerCase()).filter(k => k);
+                if (keywords.length > 0 && keywords.some(k => c.name.toLowerCase().includes(k))) {
+                    droppedByGlobal++;
+                    return false;
+                }
+            }
 
             if (!visibleListIds.has(c.idList)) {
                 droppedByList++;

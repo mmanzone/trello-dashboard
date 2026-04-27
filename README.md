@@ -23,9 +23,10 @@ A  Trello account is required to login and grant READ access to the boards. All 
 5. In the sections list, you can rename, movee up or down each section.
 6. Inside each section, each list will be displayed as a card. The name is pulled from the Trello board and cannot be changed. You can however change the colour it will appear as, and change the order of the tiles in the section. You can also move a list/tile from one section to the other, or hide it by moving it back into the unassigned pool
 7. It is common for organisation to create a Trello card at the top of a list to provide instructions. This card shouldn't be counted as an item in the dashboard; it can be skipped and removed from the total using the "use first card as description". The title of the card will be displayed uner the number in the tile.
-8. Once you're satisfied, you can click on the "Save Layout and vie Dashboard" button. The settings will be stored on your local computer and come back for each board when you visit the page again.
-9. If you want to use the same layout from different computers, or share your layout with colleagues, you can export the configuration using the button, and import it in the destination computer. Note that a configuration file only apply to a board; you can't duplicate a layout and use it with another board.
-10. If you need to start from scratch and delete a layout, simply use the "clear all saved configuratiton for selected board"; this will clear your local cache for this board only.
+8. You can also define a comma-separated list of keywords. Cards containing any of these keywords in their title will be ignored from the dashboard counts, map view, and statistics.
+9. Once you're satisfied, you can click on the "Save Layout and vie Dashboard" button. The settings will be stored on your local computer and come back for each board when you visit the page again.
+10. If you want to use the same layout from different computers, or share your layout with colleagues, you can export the configuration using the button, and import it in the destination computer. Note that a configuration file only apply to a board; you can't duplicate a layout and use it with another board.
+11. If you need to start from scratch and delete a layout, simply use the "clear all saved configuratiton for selected board"; this will clear your local cache for this board only.
 
 # Out of scope
 
