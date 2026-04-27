@@ -97,6 +97,8 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
     const ignoreTemplateCards = localStorage.getItem(STORAGE_KEYS.IGNORE_TEMPLATE_CARDS + boardId) !== 'false';
     const ignoreCompletedCards = localStorage.getItem(STORAGE_KEYS.IGNORE_COMPLETED_CARDS + boardId) === 'true';
     const ignoreNoDescCards = localStorage.getItem('IGNORE_NO_DESC_CARDS_' + boardId) === 'true';
+    const enableIgnoreKeywords = localStorage.getItem(STORAGE_KEYS.ENABLE_IGNORE_KEYWORDS + boardId) === 'true';
+    const ignoreKeywords = localStorage.getItem(STORAGE_KEYS.IGNORE_KEYWORDS + boardId) || '';
 
     // FETCH DATA
     const isFetchingRef = useRef(false);
@@ -218,6 +220,11 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                 if (ignoreCompletedCards && c.dueComplete) return false;
                 if (ignoreNoDescCards && (!c.desc || !c.desc.trim())) return false;
 
+                if (enableIgnoreKeywords && ignoreKeywords) {
+                    const keywords = ignoreKeywords.split(',').map(k => k.trim().toLowerCase()).filter(k => k);
+                    if (keywords.length > 0 && keywords.some(k => c.name.toLowerCase().includes(k))) return false;
+                }
+
                 // Time Filter
                 if (sinceDate || beforeDate) {
                     const cardDate = new Date(c.dateLastActivity);
@@ -279,7 +286,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
 
         return countsMap;
 
-    }, [allCards, timeFilter, selectedLabelIds, labelLogic, allListsMap, sectionsLayout, user.id, boardId, ignoreTemplateCards, ignoreCompletedCards, ignoreNoDescCards]);
+    }, [allCards, timeFilter, selectedLabelIds, labelLogic, allListsMap, sectionsLayout, user.id, boardId, ignoreTemplateCards, ignoreCompletedCards, ignoreNoDescCards, enableIgnoreKeywords, ignoreKeywords]);
 
 
     const handleTileClick = (listId, listName, color) => {
@@ -339,6 +346,8 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                 user={user}
                 ignoreTemplateCards={ignoreTemplateCards}
                 ignoreNoDescCards={ignoreNoDescCards}
+                enableIgnoreKeywords={enableIgnoreKeywords}
+                ignoreKeywords={ignoreKeywords}
                 settings={settings}
                 modalList={modalList}
             />
@@ -506,6 +515,8 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                     user={user}
                     ignoreTemplateCards={ignoreTemplateCards}
                     ignoreNoDescCards={ignoreNoDescCards}
+                    enableIgnoreKeywords={enableIgnoreKeywords}
+                    ignoreKeywords={ignoreKeywords}
                     settings={settings}
                     modalList={modalList}
                 />
@@ -592,6 +603,8 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
                     sectionsLayout={sectionsLayout}
                     ignoreTemplateCards={ignoreTemplateCards}
                     ignoreNoDescCards={ignoreNoDescCards}
+                    enableIgnoreKeywords={enableIgnoreKeywords}
+                    ignoreKeywords={ignoreKeywords}
                     settings={settings}
                 />
             )}
@@ -674,7 +687,7 @@ const Dashboard = ({ user, settings, onShowSettings, onLogout, onShowTasks, onSh
 const DashboardContent = ({
     sectionsLayout, blocksMap, counts, allListsMap,
     handleTileClick, handleToggleCollapse, handleCloseModal,
-    user, ignoreTemplateCards, ignoreNoDescCards, modalList, settings
+    user, ignoreTemplateCards, ignoreNoDescCards, enableIgnoreKeywords, ignoreKeywords, modalList, settings
 }) => {
     return (
         <div style={{ flex: 1, overflowY: 'auto', padding: '10px', paddingBottom: '80px', position: 'relative', zIndex: 1 }}>
@@ -763,6 +776,8 @@ const DashboardContent = ({
                     sectionsLayout={sectionsLayout}
                     ignoreTemplateCards={ignoreTemplateCards}
                     ignoreNoDescCards={ignoreNoDescCards}
+                    enableIgnoreKeywords={enableIgnoreKeywords}
+                    ignoreKeywords={ignoreKeywords}
                     settings={settings}
                 />
             )}

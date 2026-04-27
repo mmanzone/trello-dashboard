@@ -80,6 +80,8 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
     const [ignoreTemplateCards, setIgnoreTemplateCards] = useState(true);
     const [ignoreCompletedCards, setIgnoreCompletedCards] = useState(false);
     const [ignoreNoDescCards, setIgnoreNoDescCards] = useState(false); // NEW
+    const [enableIgnoreKeywords, setEnableIgnoreKeywords] = useState(false);
+    const [ignoreKeywords, setIgnoreKeywords] = useState('');
 
     // Map View
     const [enableMapView, setEnableMapView] = useState(false);
@@ -290,6 +292,8 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
         if (config.ignoreTemplateCards !== undefined) setIgnoreTemplateCards(config.ignoreTemplateCards);
         if (config.ignoreCompletedCards !== undefined) setIgnoreCompletedCards(config.ignoreCompletedCards);
         if (config.ignoreNoDescCards !== undefined) setIgnoreNoDescCards(config.ignoreNoDescCards);
+        if (config.enableIgnoreKeywords !== undefined) setEnableIgnoreKeywords(config.enableIgnoreKeywords);
+        if (config.ignoreKeywords !== undefined) setIgnoreKeywords(config.ignoreKeywords);
         if (config.slideshowInterval !== undefined) setSlideshowInterval(config.slideshowInterval);
 
         // 4. Map settings
@@ -405,6 +409,12 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
 
             const savedIgnoreNoDesc = localStorage.getItem('IGNORE_NO_DESC_CARDS_' + boardId);
             setIgnoreNoDescCards(savedIgnoreNoDesc === 'true'); // Default false
+
+            const savedEnableIgnoreKeywords = localStorage.getItem(STORAGE_KEYS.ENABLE_IGNORE_KEYWORDS + boardId);
+            setEnableIgnoreKeywords(savedEnableIgnoreKeywords === 'true');
+
+            const savedIgnoreKeywords = localStorage.getItem(STORAGE_KEYS.IGNORE_KEYWORDS + boardId);
+            setIgnoreKeywords(savedIgnoreKeywords || '');
 
             // 5. Load Map Config
             const rulesKey = `TRELLO_MARKER_RULES_${boardId}`;
@@ -676,6 +686,8 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                 localStorage.setItem(STORAGE_KEYS.IGNORE_TEMPLATE_CARDS + selectedBoardId, ignoreTemplateCards ? 'true' : 'false');
                 localStorage.setItem(STORAGE_KEYS.IGNORE_COMPLETED_CARDS + selectedBoardId, ignoreCompletedCards ? 'true' : 'false');
                 localStorage.setItem(STORAGE_KEYS.IGNORE_NO_DESC_CARDS + selectedBoardId, ignoreNoDescCards ? 'true' : 'false');
+                localStorage.setItem(STORAGE_KEYS.ENABLE_IGNORE_KEYWORDS + selectedBoardId, enableIgnoreKeywords ? 'true' : 'false');
+                localStorage.setItem(STORAGE_KEYS.IGNORE_KEYWORDS + selectedBoardId, ignoreKeywords);
 
                 // 4. Save Map Config
                 localStorage.setItem(`TRELLO_MARKER_RULES_${selectedBoardId}`, JSON.stringify(markerRules.filter(r => r.labelId))); // Clean empty rules
@@ -876,6 +888,8 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
             ignoreTemplateCards,
             ignoreCompletedCards,
             ignoreNoDescCards,
+            enableIgnoreKeywords,
+            ignoreKeywords,
             slideshowInterval,
 
             // Map settings
@@ -971,6 +985,8 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                 if (config.ignoreTemplateCards !== undefined) setIgnoreTemplateCards(config.ignoreTemplateCards);
                 if (config.ignoreCompletedCards !== undefined) setIgnoreCompletedCards(config.ignoreCompletedCards);
                 if (config.ignoreNoDescCards !== undefined) setIgnoreNoDescCards(config.ignoreNoDescCards);
+                if (config.enableIgnoreKeywords !== undefined) setEnableIgnoreKeywords(config.enableIgnoreKeywords);
+                if (config.ignoreKeywords !== undefined) setIgnoreKeywords(config.ignoreKeywords);
                 if (config.slideshowInterval !== undefined) setSlideshowInterval(config.slideshowInterval);
 
                 // Map settings
@@ -1879,6 +1895,28 @@ const SettingsScreen = ({ user, initialTab = 'dashboard', onClose, onSave, onLog
                                                     />
                                                     <label htmlFor="ignoreCompletedCards" style={{ marginLeft: '10px', cursor: 'pointer' }}>Ignore Completed Cards (Due Complete)</label>
                                                 </div>
+                                                <div className="setting-item-row" onClick={() => setEnableIgnoreKeywords(!enableIgnoreKeywords)} style={{ cursor: 'pointer', marginTop: '10px' }}>
+                                                    <ToggleSwitch
+                                                        id="enableIgnoreKeywords"
+                                                        checked={enableIgnoreKeywords}
+                                                        onChange={(e) => setEnableIgnoreKeywords(e.target.checked)}
+                                                    />
+                                                    <label htmlFor="enableIgnoreKeywords" style={{ marginLeft: '10px', cursor: 'pointer' }}>Ignore cards containing specific keywords</label>
+                                                </div>
+                                                {enableIgnoreKeywords && (
+                                                    <div style={{ marginLeft: '50px', marginTop: '10px' }}>
+                                                        <input 
+                                                            type="text" 
+                                                            value={ignoreKeywords} 
+                                                            onChange={e => setIgnoreKeywords(e.target.value)} 
+                                                            placeholder="Enter keywords separated by commas (e.g. archive, done)" 
+                                                            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                                                        />
+                                                        <span style={{ fontSize: '0.85em', color: '#666', fontStyle: 'italic', display: 'block', marginTop: '5px' }}>
+                                                            Cards containing any of these keywords in their title will be ignored.
+                                                        </span>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { trelloFetch } from '../api/trello';
-import { TIME_FILTERS } from '../utils/constants';
+import { TIME_FILTERS, STORAGE_KEYS } from '../utils/constants';
 import LabelFilter from './common/LabelFilter';
 import { useDarkMode } from '../context/DarkModeContext';
 import { Sun, Moon, Sparkles, Loader2 } from 'lucide-react';
@@ -86,6 +86,16 @@ const StatisticsView = ({ user, settings, onShowSettings, onGoToDashboard, onLog
                 let finalCards = processedCards;
                 if (includedLists.length > 0) {
                     finalCards = finalCards.filter(c => includedSet.has(c.idList));
+                }
+
+                const enableIgnoreKeywords = localStorage.getItem(STORAGE_KEYS.ENABLE_IGNORE_KEYWORDS + boardId) === 'true';
+                const ignoreKeywords = localStorage.getItem(STORAGE_KEYS.IGNORE_KEYWORDS + boardId) || '';
+
+                if (enableIgnoreKeywords && ignoreKeywords) {
+                    const keywords = ignoreKeywords.split(',').map(k => k.trim().toLowerCase()).filter(k => k);
+                    if (keywords.length > 0) {
+                        finalCards = finalCards.filter(c => !keywords.some(k => c.name.toLowerCase().includes(k)));
+                    }
                 }
 
                 setCards(finalCards);
