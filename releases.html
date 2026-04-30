@@ -39,12 +39,15 @@
             padding-left: 0;
         }
         ul.main-list > li {
-            margin-bottom: 15px;
+            margin-bottom: 25px;
         }
         ul.sub-list {
             list-style-type: disc;
             padding-left: 20px;
-            margin-top: 5px;
+            margin-top: 10px;
+        }
+        ul.sub-list > li {
+            margin-bottom: 12px;
         }
         footer {
             margin-top: 60px;
@@ -70,20 +73,20 @@
         <ul class="main-list">
             <li><strong>New features</strong>
                 <ul class="sub-list">
-                    <li>Implemented keyword-based exclusion feature to filter out irrelevant cards across dashboards and maps.</li>
-                    <li>Added streaming capabilities for AI-powered statistics summary to handle large datasets effectively.</li>
-                    <li>Introduced customizable terminology settings for cards, lists, and boards to personalize the dashboard.</li>
+                    <li><strong>Keyword-based card exclusion:</strong> You can now define specific keywords to hide irrelevant cards across your dashboard and map views. This helps declutter your workspace, allowing your team to focus strictly on actionable items without deleting data.</li>
+                    <li><strong>AI-Powered Statistics Streaming:</strong> We have integrated streaming capabilities for our AI-generated summaries. This enhancement drastically reduces timeout errors when analyzing large boards, delivering insights faster and more reliably.</li>
+                    <li><strong>Customizable Terminology:</strong> Tailor the dashboard to speak your team's language by renaming core terms like "Card", "List", and "Board". This creates a more intuitive and native feel for your specific operational workflows.</li>
                 </ul>
             </li>
             <li><strong>Improvement</strong>
                 <ul class="sub-list">
-                    <li>Enhanced configuration export and sharing logic to capture all settings seamlessly.</li>
-                    <li>Updated help documentation and landing page to reflect new AI features and customizations.</li>
+                    <li><strong>Enhanced configuration sharing:</strong> Exporting and sharing your workspace configurations now seamlessly captures all custom settings. Replicating your exact dashboard setup across different sessions or with team members has never been easier.</li>
+                    <li><strong>Updated documentation:</strong> The landing page and help guides have been refreshed to thoroughly explain new AI integrations and customization options. These updates ensure you can take full advantage of our latest tools immediately.</li>
                 </ul>
             </li>
             <li><strong>Bug fix</strong>
                 <ul class="sub-list">
-                    <li>Resolved AI summary gateway timeout errors by optimizing payload sizes and implementing streaming responses.</li>
+                    <li>Resolved AI gateway timeouts by intelligently optimizing data payloads and introducing streaming responses for extensive datasets.</li>
                 </ul>
             </li>
         </ul>
@@ -94,12 +97,12 @@
         <ul class="main-list">
             <li><strong>Improvement</strong>
                 <ul class="sub-list">
-                    <li>Refined the Map View centering logic to intelligently default to user home address or a sensible default when no cards are plotted.</li>
+                    <li><strong>Smart map centering:</strong> The Map View now intelligently defaults to your Home Address or a sensible regional center when no active cards are plotted. This prevents you from staring at empty oceans, saving time and keeping context relevant.</li>
                 </ul>
             </li>
             <li><strong>Bug fix</strong>
                 <ul class="sub-list">
-                    <li>Fixed Trello authentication token errors to ensure map markers display correctly.</li>
+                    <li>Fixed Trello authentication token inconsistencies that occasionally prevented map markers from displaying accurately.</li>
                 </ul>
             </li>
         </ul>
@@ -110,20 +113,43 @@
         <ul class="main-list">
             <li><strong>New features</strong>
                 <ul class="sub-list">
-                    <li>Introduced the "Prevent Screen Off" feature to keep the device awake during slideshows and extended dashboard viewing.</li>
-                    <li>Implemented comprehensive UI/UX refinements across Dashboard, Statistics, Map, and Task views.</li>
+                    <li><strong>Prevent Screen Off:</strong> A new toggle allows you to keep your device awake indefinitely during slideshows and extended dashboard viewing sessions. This is perfect for dedicated office wallboards that need to stay visible throughout the workday.</li>
+                    <li><strong>Comprehensive UI/UX Refinements:</strong> We overhauled the visual layout across Dashboard, Statistics, Map, and Task views. These responsive design changes maximize screen real estate and make navigation substantially more intuitive.</li>
                 </ul>
             </li>
             <li><strong>Improvement</strong>
                 <ul class="sub-list">
-                    <li>Upgraded the Statistics View with a unified hamburger menu for consistent filter and theme management.</li>
-                    <li>Enhanced filter functionalities across views, including match any/all logic for labels.</li>
+                    <li><strong>Unified Statistics Menu:</strong> The Statistics View now features a clean, consolidated hamburger menu for managing filters and theme preferences. This creates a more consistent and accessible experience compared to other views.</li>
+                    <li><strong>Advanced Label Filtering:</strong> You can now apply "match any" or "match all" logic when filtering by labels. This empowers you to create highly specific, granular views of your workflow data instantly.</li>
                 </ul>
             </li>
             <li><strong>Bug fix</strong>
                 <ul class="sub-list">
-                    <li>Fixed map view header rendering and marker plotting issues to ensure accurate geographical data display.</li>
-                    <li>Resolved infinite reload loops and resource exhaustion errors related to dashboard data fetching.</li>
+                    <li>Addressed map view header rendering issues and infinite reload loops that occurred during heavy data fetching scenarios.</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>December 2025</h2>
+        <ul class="main-list">
+            <li><strong>New features</strong>
+                <ul class="sub-list">
+                    <li><strong>Background Coordinate Sync:</strong> The application now actively monitors cached geocoordinates and automatically synchronizes them back to your Trello cards in the background. This guarantees that your geographical data is always up-to-date and accessible directly within Trello.</li>
+                    <li><strong>Interactive Map View Launch:</strong> We introduced the foundational Map View, transforming standard task lists into a geographical command center. You can now visualize team deployments and card locations instantly on an interactive map.</li>
+                </ul>
+            </li>
+            <li><strong>Improvement</strong>
+                <ul class="sub-list">
+                    <li><strong>Resilient Geocoding Queue:</strong> The geocoding engine has been upgraded to process addresses independently, meaning one invalid address will no longer halt the entire queue. We also improved the parser to better extract addresses directly from embedded Google Maps links.</li>
+                    <li><strong>Enhanced Error Visibility:</strong> Geocoding errors now trigger informative, temporary toast notifications that include direct links to the problematic card. This allows you to quickly identify and correct invalid addresses without losing your place.</li>
+                </ul>
+            </li>
+            <li><strong>Bug fix</strong>
+                <ul class="sub-list">
+                    <li>Fixed a persistent issue where the map header and clock would unexpectedly disappear when navigating back from the settings screen.</li>
+                    <li>Corrected API logic failures that prevented updated coordinate data from being successfully sent back to Trello.</li>
                 </ul>
             </li>
         </ul>
