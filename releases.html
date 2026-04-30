@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trellops - Release Notes</title>
+    <style>
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --text-color: #e0e0e0;
+            --accent: #00c6ff;
+            --border: #333;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px;
+        }
+        nav {
+            margin-bottom: 40px;
+        }
+        nav a {
+            color: var(--accent);
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        h1, h2, h3 {
+            color: #fff;
+        }
+        ul.main-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        ul.main-list > li {
+            margin-bottom: 15px;
+        }
+        ul.sub-list {
+            list-style-type: disc;
+            padding-left: 20px;
+            margin-top: 5px;
+        }
+        footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.9em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">&larr; Back to Dashboard</a>
+        <a href="help.html">User Guide</a>
+        <a href="privacy.html">Privacy Policy</a>
+    </nav>
+
+    <h1>Release Notes</h1>
+
+    <section>
+        <h2>April 2026</h2>
+        <ul class="main-list">
+            <li><strong>New features</strong>
+                <ul class="sub-list">
+                    <li>Implemented keyword-based exclusion feature to filter out irrelevant cards across dashboards and maps.</li>
+                    <li>Added streaming capabilities for AI-powered statistics summary to handle large datasets effectively.</li>
+                    <li>Introduced customizable terminology settings for cards, lists, and boards to personalize the dashboard.</li>
+                </ul>
+            </li>
+            <li><strong>Improvement</strong>
+                <ul class="sub-list">
+                    <li>Enhanced configuration export and sharing logic to capture all settings seamlessly.</li>
+                    <li>Updated help documentation and landing page to reflect new AI features and customizations.</li>
+                </ul>
+            </li>
+            <li><strong>Bug fix</strong>
+                <ul class="sub-list">
+                    <li>Resolved AI summary gateway timeout errors by optimizing payload sizes and implementing streaming responses.</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>February 2026</h2>
+        <ul class="main-list">
+            <li><strong>Improvement</strong>
+                <ul class="sub-list">
+                    <li>Refined the Map View centering logic to intelligently default to user home address or a sensible default when no cards are plotted.</li>
+                </ul>
+            </li>
+            <li><strong>Bug fix</strong>
+                <ul class="sub-list">
+                    <li>Fixed Trello authentication token errors to ensure map markers display correctly.</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>January 2026</h2>
+        <ul class="main-list">
+            <li><strong>New features</strong>
+                <ul class="sub-list">
+                    <li>Introduced the "Prevent Screen Off" feature to keep the device awake during slideshows and extended dashboard viewing.</li>
+                    <li>Implemented comprehensive UI/UX refinements across Dashboard, Statistics, Map, and Task views.</li>
+                </ul>
+            </li>
+            <li><strong>Improvement</strong>
+                <ul class="sub-list">
+                    <li>Upgraded the Statistics View with a unified hamburger menu for consistent filter and theme management.</li>
+                    <li>Enhanced filter functionalities across views, including match any/all logic for labels.</li>
+                </ul>
+            </li>
+            <li><strong>Bug fix</strong>
+                <ul class="sub-list">
+                    <li>Fixed map view header rendering and marker plotting issues to ensure accurate geographical data display.</li>
+                    <li>Resolved infinite reload loops and resource exhaustion errors related to dashboard data fetching.</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Trellops. All rights reserved.</p>
+    </footer>
+</body>
+</html>

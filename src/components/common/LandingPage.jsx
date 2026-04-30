@@ -65,7 +65,7 @@ const LandingPage = () => {
 
             <footer>
                 <button id="login-btn" onClick={handleLogin}>Login with Trello</button>
-                <p><a href="help.html">User Guide</a> | <a href="privacy.html">Privacy Disclaimer</a></p>
+                <p><a href="help.html">User Guide</a> | <a href="privacy.html">Privacy Disclaimer</a> | <a href="releases.html">Release Notes</a></p>
             </footer>
         </div>
     );
